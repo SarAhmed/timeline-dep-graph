@@ -12,7 +12,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "tdp",
+      "prefix": "tdg",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "timeline-dep-graph"
+    }
+  },
+  "defaultProject": "timeline-dep-graph",
+  "cli": {
+    "analytics": false
+  }
 }
