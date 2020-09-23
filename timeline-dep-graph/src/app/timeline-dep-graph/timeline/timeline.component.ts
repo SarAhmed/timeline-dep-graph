@@ -1,12 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { DataSet, Timeline } from 'vis';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 @Component({
   selector: 'tdg-timeline',
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.sass']
 })
-export class TimelineComponent implements OnInit {
+export class TimelineComponent implements AfterViewInit {
 
   private timeline: Timeline;
   private items = new DataSet();
@@ -15,7 +15,7 @@ export class TimelineComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.renderTimeline();
   }
 
@@ -24,7 +24,7 @@ export class TimelineComponent implements OnInit {
     timelineStart.setDate(timelineStart.getDate() - 1);
 
     // Set the start of the timeline to one day before the current time.
-    const timelineOptions = {'start': timelineStart.getTime()};
+    const timelineOptions: TimelineOptions = {start: timelineStart.getTime()};
 
     this.timeline  = new Timeline(this.timelineVis.nativeElement, this.items, timelineOptions);
   }
