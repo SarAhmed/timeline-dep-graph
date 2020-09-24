@@ -4,7 +4,7 @@ import { Timeline } from 'vis';
 @Component({
   selector: 'tdg-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.sass']
+  styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent {
 
