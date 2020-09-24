@@ -4,11 +4,11 @@ import { DataSet, Timeline, TimelineOptions } from 'vis';
 @Component({
   selector: 'tdg-timeline',
   templateUrl: './timeline.component.html',
-  styleUrls: ['./timeline.component.sass']
+  styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements AfterViewInit {
 
-  private timeline: Timeline;
+  timeline: Timeline;
   private items = new DataSet();
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
