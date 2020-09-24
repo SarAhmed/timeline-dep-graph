@@ -1,6 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { Timeline } from 'vis';
 
+const ZOOM_RATIO = 0.2;
+const MOTION_RATIO = 0.2;
+
 @Component({
   selector: 'tdg-toolbar',
   templateUrl: './toolbar.component.html',
@@ -13,19 +16,19 @@ export class ToolbarComponent {
   constructor() { }
 
   zoomIn(): void {
-    this.timeline.zoomIn(0.2);
+    this.timeline.zoomIn(ZOOM_RATIO);
   }
 
   zoomOut(): void {
-    this.timeline.zoomOut(0.2);
+    this.timeline.zoomOut(ZOOM_RATIO);
   }
 
   moveLeft(): void {
-    this.move(0.2);
+    this.move(MOTION_RATIO);
   }
 
   moveRight(): void {
-    this.move(-0.2);
+    this.move(-MOTION_RATIO);
   }
 
   private move(percentage): void {
@@ -34,7 +37,7 @@ export class ToolbarComponent {
 
     this.timeline.setWindow({
       start: range.start.valueOf() - interval * percentage,
-      end: range.end.valueOf() - interval * percentage
+      end: range.end.valueOf() - interval * percentage,
     });
   }
 
