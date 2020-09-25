@@ -4,22 +4,6 @@ import { Timeline } from 'vis';
 
 import { ToolbarComponent } from './toolbar.component';
 
-const mockTimeline = {
-  zoomIn: () => { },
-  zoomOut: () => { },
-  setWindow: (o) => {},
-  getWindow: () => {
-    return {
-      start: {
-        valueOf: () => 0
-      },
-      end: {
-        valueOf: () => 1
-      }
-    };
-  },
-} as Timeline;
-
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
@@ -42,11 +26,8 @@ describe('ToolbarComponent', () => {
   });
 
   it('should call zoomIn method on zooming in', () => {
-
-    component.timeline = mockTimeline;
+    component.timeline = createMockTimeline();
     fixture.detectChanges();
-
-    spyOn(component.timeline, 'zoomIn');
 
     const deZoomInBtn = fixture.debugElement.query(By.css('button.zoomIn'));
     const zoomIn = deZoomInBtn.nativeElement;
@@ -56,11 +37,8 @@ describe('ToolbarComponent', () => {
   });
 
   it('should call zoomOut method on zooming out', () => {
-
-    component.timeline = mockTimeline;
+    component.timeline = createMockTimeline();
     fixture.detectChanges();
-
-    spyOn(component.timeline, 'zoomOut');
 
     const deZoomOutBtn = fixture.debugElement.query(By.css('button.zoomOut'));
     const ZoomOut = deZoomOutBtn.nativeElement;
@@ -69,33 +47,9 @@ describe('ToolbarComponent', () => {
     expect(component.timeline.zoomOut).toHaveBeenCalled();
   });
 
-  it('should call moveLeft method on moveing left', () => {
-
-    spyOn(component, 'moveLeft');
-
-    const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
-    const moveLeft = demoveLeftBtn.nativeElement;
-    moveLeft.click();
-
-    expect(component.moveLeft).toHaveBeenCalled();
-  });
-
-  it('should call moveRight method on moveing right', () => {
-
-    spyOn(component, 'moveRight');
-
-    const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
-    const moveRight = demoveRightBtn.nativeElement;
-    moveRight.click();
-
-    expect(component.moveRight).toHaveBeenCalled();
-  });
-
   it('should move the timeline window to the left with 0.2 precentage', () => {
-    component.timeline = mockTimeline;
+    component.timeline = createMockTimeline();
     fixture.detectChanges();
-
-    spyOn(component.timeline, 'setWindow');
 
     const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
     const moveLeft = demoveLeftBtn.nativeElement;
@@ -108,10 +62,8 @@ describe('ToolbarComponent', () => {
   });
 
   it('should move the timeline window to the right with 0.2 precentage', () => {
-    component.timeline = mockTimeline;
+    component.timeline = createMockTimeline();
     fixture.detectChanges();
-
-    spyOn(component.timeline, 'setWindow');
 
     const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
     const moveRight = demoveRightBtn.nativeElement;
@@ -122,4 +74,25 @@ describe('ToolbarComponent', () => {
       end: 1.2,
     });
   });
+
 });
+
+function createMockTimeline(): Timeline {
+  const mockTimeline = {
+    zoomIn: jasmine.createSpy(),
+    zoomOut: jasmine.createSpy(),
+    setWindow: jasmine.createSpy(),
+    getWindow: () => {
+      return {
+        start: {
+          valueOf: () => 0
+        },
+        end: {
+          valueOf: () => 1
+        }
+      };
+    },
+  } as Timeline;
+
+  return mockTimeline;
+}
