@@ -21,11 +21,11 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
   });
 
-  it('create', () => {
+  it('renders the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('call zoomIn method on zooming in', () => {
+  it('calls zoomIn method on zooming in', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
@@ -35,7 +35,7 @@ describe('ToolbarComponent', () => {
     expect(component.timeline.zoomIn).toHaveBeenCalled();
   });
 
-  it('call zoomOut method on zooming out', () => {
+  it('calls zoomOut method on zooming out', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
@@ -45,12 +45,12 @@ describe('ToolbarComponent', () => {
     expect(component.timeline.zoomOut).toHaveBeenCalled();
   });
 
-  it('move the timeline window to the left with 0.2 precentage', () => {
+  it('moves the timeline window to the left with 0.2 precentage', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
-    const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
-    demoveLeftBtn.nativeElement.click();
+    const deMoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
+    deMoveLeftBtn.nativeElement.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: -0.2,
@@ -58,12 +58,12 @@ describe('ToolbarComponent', () => {
     });
   });
 
-  it('move the timeline window to the right with 0.2 precentage', () => {
+  it('moves the timeline window to the right with 0.2 precentage', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
-    const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
-    demoveRightBtn.nativeElement.click();
+    const deMoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
+    deMoveRightBtn.nativeElement.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: 0.2,
