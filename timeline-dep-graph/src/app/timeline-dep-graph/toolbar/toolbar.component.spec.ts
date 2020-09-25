@@ -30,8 +30,8 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const deZoomInBtn = fixture.debugElement.query(By.css('button.zoomIn'));
-    const zoomIn = deZoomInBtn.nativeElement;
-    zoomIn.click();
+    const zoomInEle = deZoomInBtn.nativeElement;
+    zoomInEle.click();
 
     expect(component.timeline.zoomIn).toHaveBeenCalled();
   });
@@ -41,8 +41,8 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const deZoomOutBtn = fixture.debugElement.query(By.css('button.zoomOut'));
-    const ZoomOut = deZoomOutBtn.nativeElement;
-    ZoomOut.click();
+    const zoomOutEle = deZoomOutBtn.nativeElement;
+    zoomOutEle.click();
 
     expect(component.timeline.zoomOut).toHaveBeenCalled();
   });
@@ -52,8 +52,8 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
-    const moveLeft = demoveLeftBtn.nativeElement;
-    moveLeft.click();
+    const moveLeftEle = demoveLeftBtn.nativeElement;
+    moveLeftEle.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: -0.2,
@@ -66,8 +66,8 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
-    const moveRight = demoveRightBtn.nativeElement;
-    moveRight.click();
+    const moveRightEle = demoveRightBtn.nativeElement;
+    moveRightEle.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: 0.2,
@@ -79,19 +79,17 @@ describe('ToolbarComponent', () => {
 
 function createMockTimeline(): Timeline {
   const mockTimeline = {
-    zoomIn: jasmine.createSpy(),
-    zoomOut: jasmine.createSpy(),
-    setWindow: jasmine.createSpy(),
-    getWindow: () => {
-      return {
-        start: {
-          valueOf: () => 0
-        },
-        end: {
-          valueOf: () => 1
-        }
-      };
-    },
+    zoomIn: jasmine.createSpy('zoomIn'),
+    zoomOut: jasmine.createSpy('zoomOut'),
+    setWindow: jasmine.createSpy('setWindow'),
+    getWindow: jasmine.createSpy('getWindow').and.returnValue({
+      start: {
+        valueOf: () => 0
+      },
+      end: {
+        valueOf: () => 1
+      }
+    })
   } as Timeline;
 
   return mockTimeline;
