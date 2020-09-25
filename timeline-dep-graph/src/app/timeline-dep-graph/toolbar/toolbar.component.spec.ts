@@ -30,8 +30,7 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const deZoomInBtn = fixture.debugElement.query(By.css('button.zoomIn'));
-    const zoomInEl = deZoomInBtn.nativeElement;
-    zoomInEl.click();
+    deZoomInBtn.nativeElement.click();
 
     expect(component.timeline.zoomIn).toHaveBeenCalled();
   });
@@ -41,8 +40,7 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const deZoomOutBtn = fixture.debugElement.query(By.css('button.zoomOut'));
-    const zoomOutEl = deZoomOutBtn.nativeElement;
-    zoomOutEl.click();
+    deZoomOutBtn.nativeElement.click();
 
     expect(component.timeline.zoomOut).toHaveBeenCalled();
   });
@@ -52,8 +50,7 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
-    const moveLeftEl = demoveLeftBtn.nativeElement;
-    moveLeftEl.click();
+    demoveLeftBtn.nativeElement.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: -0.2,
@@ -66,8 +63,7 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
 
     const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
-    const moveRightEl = demoveRightBtn.nativeElement;
-    moveRightEl.click();
+    demoveRightBtn.nativeElement.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: 0.2,
