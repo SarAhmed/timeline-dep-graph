@@ -20,10 +20,10 @@ export class TimelineComponent implements AfterViewInit {
    * When height is undefined or null,
    * the height of the timeline is automatically adjusted to fit the contents.
    */
-  @Input() height: number | string;
-  @Input() width: number | string;
-  @Input() maxHeight: number | string;
-  @Input() minHeight: number | string;
+  @Input() height?: number | string;
+  @Input() width?: number | string;
+  @Input() maxHeight?: number | string;
+  @Input() minHeight?: number | string;
 
   ngAfterViewInit(): void {
     this.renderTimeline();
@@ -48,16 +48,16 @@ export class TimelineComponent implements AfterViewInit {
       start: timelineStart.getTime(),
     };
 
-    if (this.height) {
+    if (this.height != null) {
       timelineOptions.height = this.height;
     }
-    if (this.width) {
+    if (this.width != null) {
       timelineOptions.width = this.width;
     }
-    if (this.maxHeight) {
+    if (this.maxHeight != null) {
       timelineOptions.maxHeight = this.maxHeight;
     }
-    if (this.minHeight) {
+    if (this.minHeight != null) {
       timelineOptions.minHeight = this.minHeight;
     }
 
