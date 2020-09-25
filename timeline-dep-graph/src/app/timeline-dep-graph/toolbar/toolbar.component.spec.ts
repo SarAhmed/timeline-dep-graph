@@ -21,39 +21,39 @@ describe('ToolbarComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call zoomIn method on zooming in', () => {
+  it('call zoomIn method on zooming in', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
     const deZoomInBtn = fixture.debugElement.query(By.css('button.zoomIn'));
-    const zoomInEle = deZoomInBtn.nativeElement;
-    zoomInEle.click();
+    const zoomInEl = deZoomInBtn.nativeElement;
+    zoomInEl.click();
 
     expect(component.timeline.zoomIn).toHaveBeenCalled();
   });
 
-  it('should call zoomOut method on zooming out', () => {
+  it('call zoomOut method on zooming out', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
     const deZoomOutBtn = fixture.debugElement.query(By.css('button.zoomOut'));
-    const zoomOutEle = deZoomOutBtn.nativeElement;
-    zoomOutEle.click();
+    const zoomOutEl = deZoomOutBtn.nativeElement;
+    zoomOutEl.click();
 
     expect(component.timeline.zoomOut).toHaveBeenCalled();
   });
 
-  it('should move the timeline window to the left with 0.2 precentage', () => {
+  it('move the timeline window to the left with 0.2 precentage', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
     const demoveLeftBtn = fixture.debugElement.query(By.css('button.moveLeft'));
-    const moveLeftEle = demoveLeftBtn.nativeElement;
-    moveLeftEle.click();
+    const moveLeftEl = demoveLeftBtn.nativeElement;
+    moveLeftEl.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: -0.2,
@@ -61,13 +61,13 @@ describe('ToolbarComponent', () => {
     });
   });
 
-  it('should move the timeline window to the right with 0.2 precentage', () => {
+  it('move the timeline window to the right with 0.2 precentage', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
     const demoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
-    const moveRightEle = demoveRightBtn.nativeElement;
-    moveRightEle.click();
+    const moveRightEl = demoveRightBtn.nativeElement;
+    moveRightEl.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
       start: 0.2,
