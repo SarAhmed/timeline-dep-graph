@@ -62,7 +62,9 @@ describe('ToolbarComponent', () => {
     component.timeline = createMockTimeline();
     fixture.detectChanges();
 
-    const deMoveRightBtn = fixture.debugElement.query(By.css('button.moveRight'));
+    const deMoveRightBtn = fixture.debugElement.query(
+      By.css('button.moveRight')
+    );
     deMoveRightBtn.nativeElement.click();
 
     expect(component.timeline.setWindow).toHaveBeenCalledWith({
