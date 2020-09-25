@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 @Component({
@@ -13,7 +13,7 @@ export class TimelineComponent implements AfterViewInit {
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
-  constructor() { }
+  constructor(private readonly cdRef: ChangeDetectorRef) {}
 
   ngAfterViewInit(): void {
     this.renderTimeline();
@@ -27,6 +27,7 @@ export class TimelineComponent implements AfterViewInit {
     const timelineOptions: TimelineOptions = {start: timelineStart.getTime()};
 
     this.timeline  = new Timeline(this.timelineVis.nativeElement, this.items, timelineOptions);
+    this.cdRef.detectChanges();
   }
 
 }
