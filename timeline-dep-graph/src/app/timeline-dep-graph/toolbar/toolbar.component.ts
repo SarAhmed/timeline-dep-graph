@@ -11,7 +11,7 @@ const MOTION_RATIO = 0.2;
 })
 export class ToolbarComponent {
 
-  @Input('timeline') timeline: Timeline;
+  @Input() timeline: Timeline;
 
   constructor() { }
 
