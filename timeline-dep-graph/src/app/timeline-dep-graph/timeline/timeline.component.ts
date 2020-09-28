@@ -1,12 +1,24 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
+
+import { maptoItem } from './../Item';
+import { equalsTask, Task, TaskId } from './../Task';
 
 @Component({
   selector: 'tdg-timeline',
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
-export class TimelineComponent implements AfterViewInit {
+export class TimelineComponent implements AfterViewInit, OnChanges {
 
   timeline: Timeline;
   private items = new DataSet();
@@ -14,6 +26,8 @@ export class TimelineComponent implements AfterViewInit {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef) { }
+
+  @Input() tasks: Task[] = [];
 
   /**
    * The height/width of the timeline in pixels or as a percentage.
@@ -27,6 +41,70 @@ export class TimelineComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.renderTimeline();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.tasks) {
+      const prev = changes.tasks.previousValue || [];
+      const curr = changes.tasks.currentValue || [];
+      this.checkTasksChanges(prev, curr);
+    }
+  }
+
+  private checkTasksChanges(prev: Task[], curr: Task[]): void {
+    const map = new Map<TaskId, { 'prev'?: Task, 'curr'?: Task }>();
+
+    for (const task of prev) {
+      map.set(task.id, { prev: task });
+    }
+    for (const task of curr) {
+      if (map.has(task.id)) {
+        map.get(task.id).curr = task;
+      } else {
+        map.set(task.id, { curr: task });
+      }
+    }
+
+    const changedTasks: {
+      'remove': Task[],
+      'add': Task[],
+      'update': Task[]
+    } = { remove: [], add: [], update: [] };
+
+    for (const [_, val] of map) {
+      const prevTask = val.prev;
+      const currTask = val.curr;
+
+      if (!currTask) {
+        changedTasks.remove.push(prevTask);
+      } else if (!prevTask) {
+        changedTasks.add.push(currTask);
+      } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
+        changedTasks.update.push(currTask);
+      }
+    }
+    this.updateDepGraph(changedTasks);
+  }
+
+  private updateDepGraph(changedTasks: {
+    'remove': Task[],
+    'add': Task[],
+    'update': Task[]
+  }): void {
+    for (const task of changedTasks.remove) {
+      const item = maptoItem(task);
+      this.items.remove(item);
+    }
+
+    for (const task of changedTasks.add) {
+      const item = maptoItem(task);
+      this.items.add(item);
+    }
+
+    for (const task of changedTasks.update) {
+      const item = maptoItem(task);
+      this.items.update(item);
+    }
   }
 
   private renderTimeline(): void {
