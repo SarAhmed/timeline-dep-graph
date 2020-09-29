@@ -1,5 +1,6 @@
 import { Task } from './Task';
 
+// Item represents the vis.js API associated with a task.
 export interface Item {
   readonly id: string;
   content: string;
@@ -8,11 +9,10 @@ export interface Item {
 }
 
 export function maptoItem(task: Task): Item {
-  const item = {
+  return {
     id: task.id,
     start: task.startTime,
     end: task.finishTime,
     content: task.name,
   };
-  return item;
 }

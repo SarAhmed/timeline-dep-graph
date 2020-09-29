@@ -14,14 +14,8 @@ import { maptoItem } from './../Item';
 import { equalsTask, Task, TaskId } from './../Task';
 
 interface TaskChangesHolder {
-  'prev'?: Task;
-  'curr'?: Task;
-}
-
-interface DepGraphUpdates {
-  'remove': Task[];
-  'add': Task[];
-  'update': Task[];
+  prev?: Task;
+  curr?: Task;
 }
 
 @Component({
@@ -41,14 +35,49 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   @Input() tasks: Task[] = [];
 
   /**
-   * The height/width of the timeline in pixels or as a percentage.
+   * The height of the timeline is in pixels or as a percentage.
    * When height is undefined or null,
    * the height of the timeline is automatically adjusted to fit the contents.
+   * ```
+   * height = 400; // Sets the timeline's height to 400px
+   * height = "400px"; // Sets the timeline's height to 400px
+   * height = "50%"; // Timeline spans 50% of its parent's height.
+   * ```
+   * It is possible to set a maximum height using option `maxHeight`;
+   * to prevent the timeline from getting too high;
+   * in case of automatically calculated height.
    */
   @Input() height?: number | string;
-  @Input() width?: number | string;
+
+  /**
+   * The maxHeight of the timeline is in pixels or as a percentage.
+   * ```
+   * maxHeight = 400; // Sets the timeline's maximum height to 400px.
+   * maxHeight = "400px"; // Sets the timeline's maximum height to 400px.
+   * maxHeight = "50%"; // Timeline spans in maximum 50% of its parent's height.
+   * ```
+   */
   @Input() maxHeight?: number | string;
+
+  /**
+   * The minHeight of the timeline is in pixels or as a percentage.
+   * ```
+   * minHeight = 400; // Sets the timeline's minimum height to 400px.
+   * minHeight = "400px"; // Sets the timeline's minimum height to 400px.
+   * minHeight = "50%"; // Timeline spans in minimum 50% of its parent's height.
+   * ```
+   */
   @Input() minHeight?: number | string;
+
+  /**
+   * The width of the timeline is in pixels or as a percentage.
+   * When width is undefined or null,
+   * the width of the timeline spans 100% of its parent's width.
+   * width = 400; // Sets the timeline's width to 400px.
+   * width = "400px"; // Sets the timeline's width to 400px.
+   * width = "50%"; // Timeline spans 50% of its parent's width.
+   */
+  @Input() width?: number | string;
 
   ngAfterViewInit(): void {
     this.renderTimeline();
@@ -62,6 +91,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     }
   }
 
+  /**
+   * Checks if there is any changes in the input tasks array,
+   * and updates the dependecy graph accordingly
+   */
   private checkTasksChanges(prev: Task[], curr: Task[]): void {
     const map = new Map<TaskId, TaskChangesHolder>();
 
@@ -76,37 +109,20 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       }
     }
 
-    const changedTasks: DepGraphUpdates = { remove: [], add: [], update: [] };
-
-    for (const [_, val] of map) {
+    for (const val of map.values()) {
       const prevTask = val.prev;
       const currTask = val.curr;
 
       if (!currTask) {
-        changedTasks.remove.push(prevTask);
+        const item = maptoItem(prevTask);
+        this.items.remove(item);
       } else if (!prevTask) {
-        changedTasks.add.push(currTask);
+        const item = maptoItem(currTask);
+        this.items.add(item);
       } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
-        changedTasks.update.push(currTask);
+        const item = maptoItem(currTask);
+        this.items.update(item);
       }
-    }
-    this.updateDepGraph(changedTasks);
-  }
-
-  private updateDepGraph(changedTasks: DepGraphUpdates): void {
-    for (const task of changedTasks.remove) {
-      const item = maptoItem(task);
-      this.items.remove(item);
-    }
-
-    for (const task of changedTasks.add) {
-      const item = maptoItem(task);
-      this.items.add(item);
-    }
-
-    for (const task of changedTasks.update) {
-      const item = maptoItem(task);
-      this.items.update(item);
     }
   }
 
