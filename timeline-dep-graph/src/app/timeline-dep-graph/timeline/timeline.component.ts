@@ -26,7 +26,7 @@ interface TaskChangesHolder {
 export class TimelineComponent implements AfterViewInit, OnChanges {
 
   timeline: Timeline;
-  private items = new DataSet();
+  private items = new DataSet<Item>();
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
@@ -119,7 +119,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       } else if (!prevTask) {
         const item = maptoItem(currTask);
         this.items.add(item);
-      } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
+      } else if (!equalsTask(currTask, prevTask)) {
         const item = maptoItem(currTask);
         this.items.update(item);
       }

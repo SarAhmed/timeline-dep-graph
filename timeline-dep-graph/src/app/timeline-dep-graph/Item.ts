@@ -2,7 +2,7 @@ import { Task } from './Task';
 
 // Item represents the vis.js API associated with a task.
 export interface Item {
-  readonly id: string;
+  readonly 'id': string;
   content: string;
   start?: Date;
   end?: Date;
