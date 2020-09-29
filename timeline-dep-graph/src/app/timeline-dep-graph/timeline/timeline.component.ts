@@ -13,6 +13,17 @@ import { DataSet, Timeline, TimelineOptions } from 'vis';
 import { maptoItem } from './../Item';
 import { equalsTask, Task, TaskId } from './../Task';
 
+interface TaskChangesHolder {
+  'prev'?: Task;
+  'curr'?: Task;
+}
+
+interface DepGraphUpdates {
+  'remove': Task[];
+  'add': Task[];
+  'update': Task[];
+}
+
 @Component({
   selector: 'tdg-timeline',
   templateUrl: './timeline.component.html',
@@ -52,7 +63,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   }
 
   private checkTasksChanges(prev: Task[], curr: Task[]): void {
-    const map = new Map<TaskId, { 'prev'?: Task, 'curr'?: Task }>();
+    const map = new Map<TaskId, TaskChangesHolder>();
 
     for (const task of prev) {
       map.set(task.id, { prev: task });
@@ -65,11 +76,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       }
     }
 
-    const changedTasks: {
-      'remove': Task[],
-      'add': Task[],
-      'update': Task[]
-    } = { remove: [], add: [], update: [] };
+    const changedTasks: DepGraphUpdates = { remove: [], add: [], update: [] };
 
     for (const [_, val] of map) {
       const prevTask = val.prev;
@@ -86,11 +93,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     this.updateDepGraph(changedTasks);
   }
 
-  private updateDepGraph(changedTasks: {
-    'remove': Task[],
-    'add': Task[],
-    'update': Task[]
-  }): void {
+  private updateDepGraph(changedTasks: DepGraphUpdates): void {
     for (const task of changedTasks.remove) {
       const item = maptoItem(task);
       this.items.remove(item);
