@@ -29,7 +29,7 @@ interface RangeItem {
 @Injectable({
   providedIn: 'root'
 })
-export class ArrowGeneratorService {
+export class ArrowService {
   private svg: SVGSVGElement;
   private itemPositionMap = new Map<TaskId, ItemPosition>();
   private outgoingArrowsMap = new Map<TaskId, Map<TaskId, SVGPathElement>>();

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
-import { ArrowGeneratorService } from './../arrow-generator.service';
+import { ArrowService } from '../arrow.service';
 import { Item, maptoItem } from './../Item';
 import { equalsTask, Task, TaskId } from './../Task';
 
@@ -27,7 +27,7 @@ export interface DependeciesChanges {
 
 @Component({
   selector: 'tdg-timeline',
-  providers: [ArrowGeneratorService],
+  providers: [ArrowService],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
@@ -39,7 +39,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-              private readonly arrowGenerator: ArrowGeneratorService,
+              private readonly arrowService: ArrowService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -91,7 +91,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
     this.renderTimeline();
-    this.arrowGenerator.setTimeline(this.timeline);
+    this.arrowService.setTimeline(this.timeline);
     this.checkTasksChanges([], this.tasks);
   }
 
@@ -144,7 +144,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     }
 
     this.updateItems(updatedTasks);
-    this.arrowGenerator.updateArrows(updatedTasks);
+    this.arrowService.updateArrows(updatedTasks);
   }
 
   private updateItems(updatedTasks: DependeciesChanges): void {
