@@ -126,11 +126,9 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
       if (!currTask) {
         updatedTasks.remove.push(prevTask);
-      }
-      else if (!prevTask) {
+      } else if (!prevTask) {
         updatedTasks.add.push(currTask);
-      }
-      else if (!equalsTask(currTask, prevTask)) {
+      } else if (!equalsTask(currTask, prevTask)) {
         updatedTasks.update.push(currTask);
       }
     }

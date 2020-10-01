@@ -129,9 +129,9 @@ export class ArrowService {
       const item: RangeItem = this.timeline.itemSet.items[id];
       const currPos = getItemPosition(item);
 
-      /*This is to a work around the vis.js bug,
-        where items fall under the timeline
-        when a certain zoom limit is exceeded.*/
+      /* This is to work around the vis.js bug,
+       * where items fall under the timeline
+       * when a certain zoom limit is exceeded. */
       if (currPos.top > 0) {
         this.itemPositionMap.set(id, currPos);
       }
