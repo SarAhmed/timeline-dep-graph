@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 import { Task } from './timeline-dep-graph/Task';
 
@@ -83,13 +83,11 @@ export class AppComponent implements OnInit {
     }, 8000);
 
     setTimeout(() => {
-
       this.tasksDemo = [task3];
       this.cdRef.detectChanges();
     }, 10000);
 
     setTimeout(() => {
-
       this.tasksDemo = [];
       this.cdRef.detectChanges();
     }, 12000);
