@@ -10,19 +10,14 @@ import {
 } from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
-import { ArrowService } from '../arrow.service';
 import { Item, maptoItem } from './../Item';
 import { equalsTask, Task, TaskId } from './../Task';
+import { ArrowService } from './arrow.service';
+import { createDependecyChanges, DependecyChanges } from './dependencyChanges';
 
 interface TaskChangesHolder {
   prev?: Task;
   curr?: Task;
-}
-
-export interface DependeciesChanges {
-  add: Task[];
-  remove: Task[];
-  update: Task[];
 }
 
 @Component({
@@ -123,11 +118,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       }
     }
 
-    const updatedTasks: DependeciesChanges = {
-      add: [],
-      remove: [],
-      update: [],
-    };
+    const updatedTasks: DependecyChanges = createDependecyChanges();
+
     for (const val of map.values()) {
       const prevTask = val.prev;
       const currTask = val.curr;
@@ -147,7 +139,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     this.arrowService.updateArrows(updatedTasks);
   }
 
-  private updateItems(updatedTasks: DependeciesChanges): void {
+  private updateItems(updatedTasks: DependecyChanges): void {
     for (const task of updatedTasks.add) {
       const item = maptoItem(task);
       this.items.add(item);

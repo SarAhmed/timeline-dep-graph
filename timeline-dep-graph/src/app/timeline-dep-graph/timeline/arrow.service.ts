@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { Task, TaskId } from './Task';
-import { DependeciesChanges } from './timeline/timeline.component';
+import { Task } from '../Task';
+import { TaskId } from './../Task';
+import { DependecyChanges } from './dependencyChanges';
 
-export interface ItemPosition {
+interface ItemPosition {
   left: number;
   top: number;
   right: number;
@@ -26,9 +27,7 @@ interface RangeItem {
   };
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ArrowService {
   private svg: SVGSVGElement;
   private itemPositionMap = new Map<TaskId, ItemPosition>();
@@ -46,7 +45,7 @@ export class ArrowService {
     });
   }
 
-  updateArrows(changes: DependeciesChanges): void {
+  updateArrows(changes: DependecyChanges): void {
     this.removeArrows(changes.remove);
     this.addArrows(changes.add);
   }
@@ -65,8 +64,8 @@ export class ArrowService {
         const start = this.itemPositionMap.get(task.id);
         const end = this.itemPositionMap.get(child.id);
 
-        const arrow = this.createPath(this.svg);
-        this.setArrowCoordinates(arrow, start, end);
+        const arrow = this.createPath();
+        setArrowCoordinates(arrow, start, end);
         outgoingArrows.set(child.id, arrow);
 
         let incomingArrows = this.incomingArrowsMap.get(child.id);
@@ -141,15 +140,6 @@ export class ArrowService {
     }
   }
 
-  private setArrowCoordinates(
-    arrow: SVGPathElement, start: ItemPosition, end: ItemPosition): void {
-    const bezierCurve = start.height * 2;
-    arrow.setAttribute(
-      'd',
-      `M ${start.right} ${start.midY} C ${start.right + bezierCurve} ${start.midY} ${end.left - bezierCurve} ${end.midY} ${end.left} ${end.midY}`
-    );
-  }
-
   private updateArrowsCoordinates(): void {
     for (const [parentId, children] of this.outgoingArrowsMap) {
       for (const [childId, arrow] of children) {
@@ -159,23 +149,23 @@ export class ArrowService {
           continue;
         }
 
-        this.setArrowCoordinates(arrow, start, end);
+        setArrowCoordinates(arrow, start, end);
       }
     }
   }
 
-  private createPath(svg: SVGSVGElement): SVGPathElement {
-    const somePath = document.createElementNS(
+  private createPath(): SVGPathElement {
+    const path = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'path'
     );
-    somePath.setAttribute('d', 'M 0 0');
-    somePath.style.stroke = 'black';
-    somePath.style.strokeWidth = '1px';
-    somePath.style.fill = 'none';
-    svg.appendChild(somePath);
+    path.setAttribute('d', 'M 0 0');
+    path.style.stroke = 'black';
+    path.style.strokeWidth = '1px';
+    path.style.fill = 'none';
+    this.svg.appendChild(path);
 
-    return somePath;
+    return path;
   }
 
 }
@@ -193,4 +183,13 @@ function getItemPosition(item: RangeItem): ItemPosition {
     width: item.width,
     height: item.height
   };
+}
+
+function setArrowCoordinates(
+  arrow: SVGPathElement, start: ItemPosition, end: ItemPosition): void {
+  const bezierCurve = start.height * 2;
+  arrow.setAttribute(
+    'd',
+    `M ${start.right} ${start.midY} C ${start.right + bezierCurve} ${start.midY} ${end.left - bezierCurve} ${end.midY} ${end.left} ${end.midY}`
+  );
 }
