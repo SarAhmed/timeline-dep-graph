@@ -90,26 +90,24 @@ export class ArrowService {
       // Remove outgoing arrows from the task.
       this.itemPositionMap.delete(task.id);
       const outgoingArrows = this.outgoingArrowsMap.get(task.id);
-      if (!outgoingArrows) {
-        continue;
-      }
-      for (const [childId, arrow] of outgoingArrows) {
-        this.svg.removeChild(arrow);
-        outgoingArrows.delete(childId);
+      if (outgoingArrows) {
+        for (const [childId, arrow] of outgoingArrows) {
+          this.svg.removeChild(arrow);
+          outgoingArrows.delete(childId);
 
-        this.incomingArrowsMap.get(childId).delete(task.id);
+          this.incomingArrowsMap.get(childId).delete(task.id);
+        }
       }
 
       // Remove incoming arrows to the task.
       const incomingArrows = this.incomingArrowsMap.get(task.id);
-      if (!incomingArrows) {
-        continue;
-      }
-      for (const [parentId, arrow] of incomingArrows) {
-        this.svg.removeChild(arrow);
-        incomingArrows.delete(parentId);
+      if (incomingArrows) {
+        for (const [parentId, arrow] of incomingArrows) {
+          this.svg.removeChild(arrow);
+          incomingArrows.delete(parentId);
 
-        this.outgoingArrowsMap.get(parentId).delete(task.id);
+          this.outgoingArrowsMap.get(parentId).delete(task.id);
+        }
       }
     }
   }
