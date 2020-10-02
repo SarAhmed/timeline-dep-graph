@@ -38,6 +38,7 @@ export class ArrowService {
   setTimeline(timeline: Timeline): void {
     this.timeline = timeline;
     this.renderSVG();
+    this.renderArrowHead();
 
     this.timeline.on('changed', () => {
       this.reCalculateItemsPositions();
@@ -124,6 +125,31 @@ export class ArrowService {
     this.timeline.dom.center.appendChild(this.svg);
   }
 
+  private renderArrowHead(): void{
+    const head = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'marker'
+    );
+    const headPath = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'path'
+    );
+
+    head.setAttribute('id', 'arrowhead');
+    head.setAttribute('viewBox', '0 0 10 10');
+    head.setAttribute('refX', '5');
+    head.setAttribute('refY', '5');
+    head.setAttribute('orient', 'auto');
+    head.setAttribute('markerWidth', '6');
+    head.setAttribute('markerHeight', '6');
+
+    headPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+    headPath.style.fill = 'black';
+
+    head.appendChild(headPath);
+    this.svg.appendChild(head);
+  }
+
   private reCalculateItemsPositions(): void {
     for (const id of this.itemPositionMap.keys()) {
       const item: RangeItem = this.timeline.itemSet.items[id];
@@ -186,6 +212,7 @@ function getItemPosition(item: RangeItem): ItemPosition {
 function setArrowCoordinates(
   arrow: SVGPathElement, start: ItemPosition, end: ItemPosition): void {
   const bezierCurve = start.height * 2;
+  arrow.setAttribute('marker-end', 'url(#arrowhead)');
   arrow.setAttribute(
     'd',
     `M ${start.right} ${start.midY} C ${start.right + bezierCurve} ${start.midY} ${end.left - bezierCurve} ${end.midY} ${end.left} ${end.midY}`
