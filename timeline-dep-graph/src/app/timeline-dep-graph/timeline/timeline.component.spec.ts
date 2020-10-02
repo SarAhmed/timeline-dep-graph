@@ -1,20 +1,26 @@
+import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ArrowService } from './arrow.service';
 import { TimelineComponent } from './timeline.component';
-import { SimpleChange } from '@angular/core';
 
 describe('TimelineComponent', () => {
   let component: TimelineComponent;
   let fixture: ComponentFixture<TimelineComponent>;
+  let mockedArrowService: Partial<ArrowService>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TimelineComponent]
+      declarations: [TimelineComponent],
+      providers: [ArrowService],
     })
       .compileComponents();
   });
 
   beforeEach(() => {
+    mockedArrowService = jasmine.createSpyObj<ArrowService>(['setTimeline', 'updateArrows']);
+    TestBed.overrideProvider(ArrowService, { useValue: mockedArrowService });
+
     fixture = TestBed.createComponent(TimelineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
