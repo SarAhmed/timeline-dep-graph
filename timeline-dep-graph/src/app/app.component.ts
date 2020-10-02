@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 import { Task } from './timeline-dep-graph/Task';
 
@@ -7,73 +7,89 @@ import { Task } from './timeline-dep-graph/Task';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit {
   title = 'timeline-dep-graph';
   constructor(private readonly cdRef: ChangeDetectorRef) { }
 
-  tasksDemo: Task[] = [{ // Test Add
-    id: '1',
-    name: 'Task 1',
-    dependants: [],
-    startTime: new Date('2020-09-28'),
-    finishTime: new Date('2020-09-29'),
-  }];
+  tasksDemo: Task[];
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
+    const task1: Task = {
+      id: '1',
+      name: 'Task 1',
+      dependants: [],
+      startTime: new Date('2020-09-28'),
+      finishTime: new Date('2020-09-29'),
+    };
+    const task2: Task = {
+      id: '2',
+      name: 'Task 2',
+      dependants: [],
+      startTime: new Date('2020-10-02'),
+      finishTime: new Date('2020-10-03'),
+    };
+    const task3: Task = {
+      id: '3',
+      name: 'Task 3',
+      dependants: [],
+      startTime: new Date('2020-10-03'),
+      finishTime: new Date('2020-10-05'),
+    };
+    const task4: Task = {
+      id: '4',
+      name: 'Task 4',
+      dependants: [],
+      startTime: new Date('2020-10-03'),
+      finishTime: new Date('2020-10-05'),
+    };
+
+    task1.dependants.push(task2);
+
+    task2.dependants.push(task3);
+    task2.dependants.push(task4);
+
+    this.tasksDemo = [task1, task2, task3, task4];
+    this.cdRef.detectChanges();
     setTimeout(() => {
-      const tasksDemo2 = [ // Test Add
-        {
-          id: '1',
-          name: 'Task 1',
-          dependants: [],
-          startTime: new Date('2020-09-28'),
-          finishTime: new Date('2020-09-29'),
-        },
-        {
-        id: '2',
-        name: 'Task 2',
+      const taskOne: Task = {
+        id: '1',
+        name: 'Task 1',
         dependants: [],
-        startTime: new Date('2020-09-28'),
-        finishTime: new Date('2020-09-30'),
-      }];
-      this.tasksDemo = tasksDemo2;
+        startTime: new Date('2020-09-29'),
+        finishTime: new Date('2020-10-1'),
+      };
+
+      this.tasksDemo = [taskOne, task2, task3, task4];
       this.cdRef.detectChanges();
-
-      setTimeout(() => {
-        const tasksDemo3 = [ // Test Update
-          {
-            id: '1',
-            name: 'Sarah',
-            dependants: [],
-            startTime: new Date('2020-09-28'),
-            finishTime: new Date('2020-09-29'),
-          },
-          {
-          id: '2',
-          name: 'Task 2',
-          dependants: [],
-          startTime: new Date('2020-09-28'),
-          finishTime: new Date('2020-09-30'),
-        }];
-        this.tasksDemo = tasksDemo3;
-        this.cdRef.detectChanges();
-
-        setTimeout(() => {
-          const tasksDemo4 = [ // Test Remove
-            {
-              id: '1',
-              name: 'Sarah',
-              dependants: [],
-              startTime: new Date('2020-09-28'),
-              finishTime: new Date('2020-09-29'),
-            },
-            ];
-          this.tasksDemo = tasksDemo4;
-          this.cdRef.detectChanges();
-        }, 2000);
-
-      }, 2000);
-
     }, 2000);
+
+    setTimeout(() => {
+      this.tasksDemo = [task3, task4];
+      this.cdRef.detectChanges();
+    }, 4000);
+
+    setTimeout(() => {
+      task1.dependants = [task3, task4];
+
+      this.tasksDemo = [task1, task3, task4];
+      this.cdRef.detectChanges();
+    }, 6000);
+
+    setTimeout(() => {
+      task1.dependants = [task3];
+
+      this.tasksDemo = [task1, task3];
+      this.cdRef.detectChanges();
+    }, 8000);
+
+    setTimeout(() => {
+      this.tasksDemo = [task3];
+      this.cdRef.detectChanges();
+    }, 10000);
+
+    setTimeout(() => {
+      this.tasksDemo = [];
+      this.cdRef.detectChanges();
+    }, 12000);
   }
 }

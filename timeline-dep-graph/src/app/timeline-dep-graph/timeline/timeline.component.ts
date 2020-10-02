@@ -10,16 +10,14 @@ import {
 } from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
-import { maptoItem } from './../Item';
-import { equalsTask, Task, TaskId } from './../Task';
-
-interface TaskChangesHolder {
-  prev?: Task;
-  curr?: Task;
-}
+import { Item, maptoItem } from './../Item';
+import { Task } from './../Task';
+import { ArrowService } from './arrow.service';
+import { DependecyChanges, getDependecyChanges } from './dependency_changes_lib.';
 
 @Component({
   selector: 'tdg-timeline',
+  providers: [ArrowService],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
@@ -30,7 +28,9 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
-  constructor(private readonly cdRef: ChangeDetectorRef) { }
+  constructor(private readonly cdRef: ChangeDetectorRef,
+              private readonly arrowService: ArrowService,
+  ) { }
 
   @Input() tasks: Task[] = [];
 
@@ -81,48 +81,41 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
     this.renderTimeline();
+    this.arrowService.setTimeline(this.timeline);
+    this.updateDepGraph({
+      add: this.tasks,
+      remove: [],
+      update: []
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.tasks) {
-      const prev = changes.tasks.previousValue || [];
-      const curr = changes.tasks.currentValue || [];
-      this.checkTasksChanges(prev, curr);
+    if (!changes.tasks || !this.timeline) {
+      return;
     }
+    const prev = changes.tasks.previousValue || [];
+    const curr = changes.tasks.currentValue || [];
+    const updatedTasks = getDependecyChanges(prev, curr);
+    this.updateDepGraph(updatedTasks);
   }
 
-  /**
-   * Checks if there is any changes in the input tasks array,
-   * and updates the dependecy graph accordingly
-   */
-  private checkTasksChanges(prev: Task[], curr: Task[]): void {
-    const map = new Map<TaskId, TaskChangesHolder>();
+  private updateDepGraph(updatedTasks: DependecyChanges): void {
+    this.updateItems(updatedTasks);
+    this.arrowService.updateArrows(updatedTasks);
+  }
 
-    for (const task of prev) {
-      map.set(task.id, { prev: task });
+  private updateItems(updatedTasks: DependecyChanges): void {
+    for (const task of updatedTasks.add) {
+      const item = maptoItem(task);
+      this.items.add(item);
     }
-    for (const task of curr) {
-      if (map.has(task.id)) {
-        map.get(task.id).curr = task;
-      } else {
-        map.set(task.id, { curr: task });
-      }
+    for (const task of updatedTasks.update) {
+      const item = maptoItem(task);
+      this.items.update(item);
     }
-
-    for (const val of map.values()) {
-      const prevTask = val.prev;
-      const currTask = val.curr;
-
-      if (!currTask) {
-        const item = maptoItem(prevTask);
-        this.items.remove(item);
-      } else if (!prevTask) {
-        const item = maptoItem(currTask);
-        this.items.add(item);
-      } else if (!equalsTask(currTask, prevTask)) {
-        const item = maptoItem(currTask);
-        this.items.update(item);
-      }
+    for (const task of updatedTasks.remove) {
+      const item = maptoItem(task);
+      this.items.remove(item);
     }
   }
 
