@@ -3,7 +3,7 @@ import { Timeline } from 'vis';
 
 import { Task } from '../Task';
 import { TaskId } from './../Task';
-import { DependecyChanges } from './dependencyChanges';
+import { DependecyChanges } from './dependency_changes_lib.';
 
 interface ItemPosition {
   left: number;

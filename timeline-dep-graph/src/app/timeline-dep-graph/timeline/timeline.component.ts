@@ -11,14 +11,9 @@ import {
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { Item, maptoItem } from './../Item';
-import { equalsTask, Task, TaskId } from './../Task';
+import { Task } from './../Task';
 import { ArrowService } from './arrow.service';
-import { createDependecyChanges, DependecyChanges } from './dependencyChanges';
-
-interface TaskChangesHolder {
-  prev?: Task;
-  curr?: Task;
-}
+import { DependecyChanges, getDependecyChanges } from './dependency_changes_lib.';
 
 @Component({
   selector: 'tdg-timeline',
@@ -87,7 +82,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   ngAfterViewInit(): void {
     this.renderTimeline();
     this.arrowService.setTimeline(this.timeline);
-    this.checkTasksChanges([], this.tasks);
+    this.updateDepGraph({
+      add: this.tasks,
+      remove: [],
+      update: []
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,43 +95,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     }
     const prev = changes.tasks.previousValue || [];
     const curr = changes.tasks.currentValue || [];
-    this.checkTasksChanges(prev, curr);
+    const updatedTasks = getDependecyChanges(prev, curr);
+    this.updateDepGraph(updatedTasks);
   }
 
-  /**
-   * Checks if there is any changes in the input tasks array,
-   * and updates the dependecy graph accordingly
-   */
-  private checkTasksChanges(prev: Task[], curr: Task[]): void {
-    const map = new Map<TaskId, TaskChangesHolder>();
-
-    for (const task of prev) {
-      map.set(task.id, { prev: task });
-    }
-
-    for (const task of curr) {
-      if (map.has(task.id)) {
-        map.get(task.id).curr = task;
-      } else {
-        map.set(task.id, { curr: task });
-      }
-    }
-
-    const updatedTasks: DependecyChanges = createDependecyChanges();
-
-    for (const val of map.values()) {
-      const prevTask = val.prev;
-      const currTask = val.curr;
-
-      if (!currTask) {
-        updatedTasks.remove.push(prevTask);
-      } else if (!prevTask) {
-        updatedTasks.add.push(currTask);
-      } else if (!equalsTask(currTask, prevTask)) {
-        updatedTasks.update.push(currTask);
-      }
-    }
-
+  private updateDepGraph(updatedTasks: DependecyChanges): void {
     this.updateItems(updatedTasks);
     this.arrowService.updateArrows(updatedTasks);
   }
