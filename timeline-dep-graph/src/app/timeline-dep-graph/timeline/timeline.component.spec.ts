@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ArrowService } from './arrow.service';
 import { TimelineComponent } from './timeline.component';
+import { Status } from '../Status';
 
 describe('TimelineComponent', () => {
   let component: TimelineComponent;
@@ -18,7 +19,7 @@ describe('TimelineComponent', () => {
   });
 
   beforeEach(() => {
-    mockedArrowService = jasmine.createSpyObj<ArrowService>(['setTimeline', 'updateArrows']);
+    mockedArrowService = jasmine.createSpyObj<ArrowService>(['setTimeline', 'updateDependencies']);
     TestBed.overrideProvider(ArrowService, { useValue: mockedArrowService });
 
     fixture = TestBed.createComponent(TimelineComponent);
@@ -38,6 +39,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -45,6 +47,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task 2',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -72,6 +75,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -79,6 +83,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task 2',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -86,6 +91,7 @@ describe('TimelineComponent', () => {
       {
         id: '3',
         name: 'Task 3',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -93,6 +99,7 @@ describe('TimelineComponent', () => {
       {
         id: '4',
         name: 'Task 4',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -107,6 +114,7 @@ describe('TimelineComponent', () => {
       {
         id: '4',
         name: 'Task 4',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -114,6 +122,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -140,6 +149,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -147,6 +157,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task 2',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -154,6 +165,7 @@ describe('TimelineComponent', () => {
       {
         id: '3',
         name: 'Task 3',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -168,6 +180,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -175,6 +188,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task TWO',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -182,6 +196,7 @@ describe('TimelineComponent', () => {
       {
         id: '3',
         name: 'Task THREE',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -210,6 +225,7 @@ describe('TimelineComponent', () => {
       {
         id: '1',
         name: 'Task 1',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -217,6 +233,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task 2',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -224,6 +241,7 @@ describe('TimelineComponent', () => {
       {
         id: '3',
         name: 'Task 3',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -238,6 +256,7 @@ describe('TimelineComponent', () => {
       {
         id: '2',
         name: 'Task 2',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-24'),
         finishTime: new Date('2020-09-27'),
@@ -245,6 +264,7 @@ describe('TimelineComponent', () => {
       {
         id: '3',
         name: 'Task THREE',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),
@@ -252,6 +272,7 @@ describe('TimelineComponent', () => {
       {
         id: '0',
         name: 'Task 0',
+        status: Status.SUCCESS,
         dependants: [],
         startTime: new Date('2020-09-28'),
         finishTime: new Date('2020-09-29'),

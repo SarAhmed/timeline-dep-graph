@@ -29,7 +29,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-    private readonly arrowService: ArrowService,
+              private readonly arrowService: ArrowService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -111,6 +111,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     // Set the start of the timeline to one day before the current time.
     const timelineOptions: TimelineOptions = {
       start: timelineStart.getTime(),
+      template: this.generateItemTemplate,
+      order: (a: Item, b: Item) => a.id.localeCompare(b.id),
     };
 
     if (this.width != null) {
@@ -123,4 +125,15 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     return timelineOptions;
   }
 
+  private generateItemTemplate(x: Item, y: HTMLElement, z: Item): string {
+    return `
+    <div class="tdg-itemDetails">
+      <b>&nbsp;&nbsp;${x.name}</b>
+      <svg class="tdg-task-progress-bar">
+        <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${x.status}"/>
+      </svg>
+      <small class="tdg-${x.status}">&nbsp;&nbsp;${x.status}</small>
+    </div>
+    `;
+  }
 }
