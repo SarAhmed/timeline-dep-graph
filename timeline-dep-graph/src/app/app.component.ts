@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
 import { Task } from './timeline-dep-graph/Task';
+import { Status } from './timeline-dep-graph/Status';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit {
     const task1: Task = {
       id: '1',
       name: 'Task 1',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-09-28'),
       finishTime: new Date('2020-09-29'),
@@ -24,6 +26,7 @@ export class AppComponent implements OnInit {
     const task2: Task = {
       id: '2',
       name: 'Task 2',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-10-02'),
       finishTime: new Date('2020-10-03'),
@@ -31,6 +34,7 @@ export class AppComponent implements OnInit {
     const task3: Task = {
       id: '3',
       name: 'Task 3',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
@@ -38,6 +42,7 @@ export class AppComponent implements OnInit {
     const task4: Task = {
       id: '4',
       name: 'Task 4',
+      status: Status.RUNNING,
       dependants: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
@@ -54,6 +59,7 @@ export class AppComponent implements OnInit {
       const taskOne: Task = {
         id: '1',
         name: 'Task 1',
+        status: Status.RUNNING,
         dependants: [],
         startTime: new Date('2020-09-29'),
         finishTime: new Date('2020-10-1'),

@@ -1,1 +1,68 @@
-/* You can add global styles to this file, and also import other style files */
+$unknown-color: gray;
+$success-color: green;
+$running-color: blue;
+$failed-color: red;
+$blocked-color: yellow;
+
+.vis-item.transeparent{
+  background-color: transparent;
+  border: transparent;
+  >div{
+    >*{
+      margin: 0px;
+      padding: 0px;
+    }
+  }
+}
+
+.tdg-itemDetails{
+  display: flex;
+  flex-direction: column;
+}
+
+.tdg-task-progress-bar{
+  stroke:black;
+  stroke-width: 1;
+  width: 100%;
+  height: 10px;
+}
+
+rect.tdg-unknown{
+  fill: $unknown-color;
+}
+
+small.tdg-unknown{
+  color: $unknown-color;
+}
+
+rect.tdg-success{
+  fill: $success-color;
+}
+
+small.tdg-success{
+  color: $success-color;
+}
+
+rect.tdg-running{
+  fill: $running-color;
+}
+
+small.tdg-running{
+  color: $running-color;
+}
+
+rect.tdg-failed{
+  fill: $failed-color;
+}
+
+small.tdg-failed{
+  color: $failed-color;
+}
+
+rect.tdg-blocked{
+  fill: $blocked-color;
+}
+
+small.tdg-blocked{
+  color: $blocked-color;
+}

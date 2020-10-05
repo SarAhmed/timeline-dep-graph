@@ -3,6 +3,7 @@ import { Timeline } from 'vis';
 
 import { Task } from '../Task';
 import { ArrowService } from './arrow.service';
+import { Status } from '../Status';
 
 describe('ArrowService', () => {
   let service: ArrowService;
@@ -28,7 +29,7 @@ describe('ArrowService', () => {
     service.setTimeline(mockTimeline);
 
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'svg');
-    expect(mockTimeline.dom.center.appendChild)
+    expect(mockTimeline.dom.center.parentNode.appendChild)
       .toHaveBeenCalledWith(jasmine.any(SVGSVGElement));
   });
 
@@ -39,6 +40,7 @@ describe('ArrowService', () => {
     const task1: Task = {
       id: '1',
       name: 'Task 1',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-09-28'),
       finishTime: new Date('2020-09-29'),
@@ -46,6 +48,7 @@ describe('ArrowService', () => {
     const task2: Task = {
       id: '2',
       name: 'Task 2',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-10-02'),
       finishTime: new Date('2020-10-03'),
@@ -53,6 +56,7 @@ describe('ArrowService', () => {
     const task3: Task = {
       id: '3',
       name: 'Task 3',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
@@ -60,6 +64,7 @@ describe('ArrowService', () => {
     const task4: Task = {
       id: '4',
       name: 'Task 4',
+      status: Status.SUCCESS,
       dependants: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
@@ -80,7 +85,7 @@ describe('ArrowService', () => {
 
     spyOn(document, 'createElementNS').and.callThrough();
 
-    service.updateArrows(changes);
+    service.updateDependencies(changes);
 
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'path');
     expect(document.createElementNS).toHaveBeenCalledTimes(3);
@@ -106,7 +111,9 @@ function createMockTimeline(): Timeline {
     },
     dom: {
       center: {
-        appendChild: jasmine.createSpy('appendChild'),
+        parentNode: {
+          appendChild: jasmine.createSpy('appendChild'),
+        },
       },
     },
   } as Timeline;

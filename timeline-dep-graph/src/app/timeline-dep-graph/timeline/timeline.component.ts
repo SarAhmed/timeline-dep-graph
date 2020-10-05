@@ -35,31 +35,6 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   @Input() tasks: Task[] = [];
 
   /**
-   * The height of the timeline is in pixels or as a percentage.
-   * When height is undefined or null,
-   * the height of the timeline is automatically adjusted to fit the contents.
-   * ```
-   * height = 400; // Sets the timeline's height to 400px
-   * height = "400px"; // Sets the timeline's height to 400px
-   * height = "50%"; // Timeline spans 50% of its parent's height.
-   * ```
-   * It is possible to set a maximum height using option `maxHeight`;
-   * to prevent the timeline from getting too high;
-   * in case of automatically calculated height.
-   */
-  @Input() height?: number | string;
-
-  /**
-   * The maxHeight of the timeline is in pixels or as a percentage.
-   * ```
-   * maxHeight = 400; // Sets the timeline's maximum height to 400px.
-   * maxHeight = "400px"; // Sets the timeline's maximum height to 400px.
-   * maxHeight = "50%"; // Timeline spans in maximum 50% of its parent's height.
-   * ```
-   */
-  @Input() maxHeight?: number | string;
-
-  /**
    * The minHeight of the timeline is in pixels or as a percentage.
    * ```
    * minHeight = 400; // Sets the timeline's minimum height to 400px.
@@ -101,7 +76,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
   private updateDepGraph(updatedTasks: DependecyChanges): void {
     this.updateItems(updatedTasks);
-    this.arrowService.updateArrows(updatedTasks);
+    this.arrowService.updateDependencies(updatedTasks);
   }
 
   private updateItems(updatedTasks: DependecyChanges): void {
@@ -136,16 +111,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     // Set the start of the timeline to one day before the current time.
     const timelineOptions: TimelineOptions = {
       start: timelineStart.getTime(),
+      template: this.generateItemTemplate,
+      order: (a: Item, b: Item) => a.id.localeCompare(b.id),
     };
 
-    if (this.height != null) {
-      timelineOptions.height = this.height;
-    }
     if (this.width != null) {
       timelineOptions.width = this.width;
-    }
-    if (this.maxHeight != null) {
-      timelineOptions.maxHeight = this.maxHeight;
     }
     if (this.minHeight != null) {
       timelineOptions.minHeight = this.minHeight;
@@ -154,4 +125,15 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     return timelineOptions;
   }
 
+  private generateItemTemplate(x: Item, y: HTMLElement, z: Item): string {
+    return `
+    <div class="tdg-itemDetails">
+      <b>&nbsp;&nbsp;${x.name}</b>
+      <svg class="tdg-task-progress-bar">
+        <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${x.status}"/>
+      </svg>
+      <small class="tdg-${x.status}">&nbsp;&nbsp;${x.status}</small>
+    </div>
+    `;
+  }
 }

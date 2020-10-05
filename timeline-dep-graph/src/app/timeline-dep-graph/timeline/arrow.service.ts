@@ -27,10 +27,14 @@ interface RangeItem {
   };
 }
 
+interface ArrowCoordinates {
+  start: ItemPosition;
+  end: ItemPosition;
+}
+
 @Injectable()
 export class ArrowService {
   private svg: SVGSVGElement;
-  private itemPositionMap = new Map<TaskId, ItemPosition>();
   private outgoingArrowsMap = new Map<TaskId, Map<TaskId, SVGPathElement>>();
   private incomingArrowsMap = new Map<TaskId, Map<TaskId, SVGPathElement>>();
   private timeline: Timeline;
@@ -41,62 +45,71 @@ export class ArrowService {
     this.renderArrowHead();
 
     this.timeline.on('changed', () => {
-      this.reCalculateItemsPositions();
       this.updateArrowsCoordinates();
     });
   }
 
-  updateArrows(changes: DependecyChanges): void {
+  updateDependencies(changes: DependecyChanges): void {
     this.removeArrows(changes.remove);
     this.addArrows(changes.add);
+    this.updateArrows(changes.update);
+  }
+
+  private updateArrows(tasks: Task[]): void {
+    const childrenIds = new Set<TaskId>();
+
+    for (const task of tasks) {
+      const outgoingArrows = this.outgoingArrowsMap.get(task.id);
+      for (const child of task.dependants) {
+        childrenIds.add(child.id);
+        if (!outgoingArrows || !outgoingArrows.has(child.id)) {
+          this.addArrow(task.id, child.id);
+        }
+      }
+
+      for (const [childId, arrow] of outgoingArrows) {
+        if (!childrenIds.has(childId)) {
+          this.removeArrow(task.id, childId, arrow);
+        }
+      }
+    }
   }
 
   private addArrows(tasks: Task[]): void {
-    this.setItemsPositions(tasks);
-
     for (const task of tasks) {
-      let outgoingArrows = this.outgoingArrowsMap.get(task.id);
-      if (!outgoingArrows) {
-        outgoingArrows = new Map<TaskId, SVGPathElement>();
-        this.outgoingArrowsMap.set(task.id, outgoingArrows);
-      }
-
       for (const child of task.dependants) {
-        const start = this.itemPositionMap.get(task.id);
-        const end = this.itemPositionMap.get(child.id);
-
-        const arrow = this.createPath();
-        setArrowCoordinates(arrow, start, end);
-        outgoingArrows.set(child.id, arrow);
-
-        let incomingArrows = this.incomingArrowsMap.get(child.id);
-        if (!incomingArrows) {
-          incomingArrows = new Map<TaskId, SVGPathElement>();
-          this.incomingArrowsMap.set(child.id, incomingArrows);
-        }
-        incomingArrows.set(task.id, arrow);
+        this.addArrow(task.id, child.id);
       }
     }
   }
 
-  private setItemsPositions(tasks: Task[]): void {
-    for (const task of tasks) {
-      const item = this.timeline.itemSet.items[task.id];
-      this.itemPositionMap.set(task.id, getItemPosition(item));
+  private addArrow(parentId: TaskId, childId: TaskId): void {
+    const arrowCoordinates = this.getArrowCoordinates(parentId, childId);
+    const arrow = this.createPath();
+    setArrowCoordinates(arrow, arrowCoordinates.start, arrowCoordinates.end);
+
+    let outgoingArrows = this.outgoingArrowsMap.get(parentId);
+    if (!outgoingArrows) {
+      outgoingArrows = new Map<TaskId, SVGPathElement>();
+      this.outgoingArrowsMap.set(parentId, outgoingArrows);
     }
+    outgoingArrows.set(childId, arrow);
+
+    let incomingArrows = this.incomingArrowsMap.get(childId);
+    if (!incomingArrows) {
+      incomingArrows = new Map<TaskId, SVGPathElement>();
+      this.incomingArrowsMap.set(childId, incomingArrows);
+    }
+    incomingArrows.set(parentId, arrow);
   }
 
   private removeArrows(tasks: Task[]): void {
     for (const task of tasks) {
       // Remove outgoing arrows from the task.
-      this.itemPositionMap.delete(task.id);
       const outgoingArrows = this.outgoingArrowsMap.get(task.id);
       if (outgoingArrows) {
         for (const [childId, arrow] of outgoingArrows) {
-          this.svg.removeChild(arrow);
-          outgoingArrows.delete(childId);
-
-          this.incomingArrowsMap.get(childId).delete(task.id);
+          this.removeArrow(task.id, childId, arrow);
         }
       }
 
@@ -104,13 +117,17 @@ export class ArrowService {
       const incomingArrows = this.incomingArrowsMap.get(task.id);
       if (incomingArrows) {
         for (const [parentId, arrow] of incomingArrows) {
-          this.svg.removeChild(arrow);
-          incomingArrows.delete(parentId);
-
-          this.outgoingArrowsMap.get(parentId).delete(task.id);
+          this.removeArrow(parentId, task.id, arrow);
         }
       }
     }
+  }
+
+  private removeArrow(parentId: TaskId, childId: TaskId, arrow: SVGPathElement):
+    void {
+    this.outgoingArrowsMap.get(parentId).delete(childId);
+    this.incomingArrowsMap.get(childId).delete(parentId);
+    this.svg.removeChild(arrow);
   }
 
   private renderSVG(): void {
@@ -121,11 +138,12 @@ export class ArrowService {
     this.svg.style.height = '100%';
     this.svg.style.width = '100%';
     this.svg.style.display = 'block';
+    this.svg.style.zIndex = '-1';
 
-    this.timeline.dom.center.appendChild(this.svg);
+    this.timeline.dom.center.parentNode.appendChild(this.svg);
   }
 
-  private renderArrowHead(): void{
+  private renderArrowHead(): void {
     const head = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'marker'
@@ -150,32 +168,46 @@ export class ArrowService {
     this.svg.appendChild(head);
   }
 
-  private reCalculateItemsPositions(): void {
-    for (const id of this.itemPositionMap.keys()) {
-      const item: RangeItem = this.timeline.itemSet.items[id];
-      const currPos = getItemPosition(item);
-
-      /* This is to work around the vis.js bug,
-       * where items fall under the timeline
-       * when a certain zoom limit is exceeded. */
-      if (currPos.top > 0) {
-        this.itemPositionMap.set(id, currPos);
+  private updateArrowsCoordinates(): void {
+    for (const [parentId, children] of this.outgoingArrowsMap) {
+      for (const [childId, arrow] of children) {
+        const arrowCoordinates = this.getArrowCoordinates(parentId, childId);
+        setArrowCoordinates(
+          arrow, arrowCoordinates.start, arrowCoordinates.end);
       }
     }
   }
 
-  private updateArrowsCoordinates(): void {
-    for (const [parentId, children] of this.outgoingArrowsMap) {
-      for (const [childId, arrow] of children) {
-        const start = this.itemPositionMap.get(parentId);
-        const end = this.itemPositionMap.get(childId);
-        if (!start || !end || !arrow) {
-          continue;
-        }
+  private getArrowCoordinates(parentId: string, childId): ArrowCoordinates {
+    const timelineHeight = this.timeline.dom.center.offsetHeight;
+    const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
 
-        setArrowCoordinates(arrow, start, end);
-      }
+    const parentItem: RangeItem = this.timeline.itemSet.items[parentId];
+    const start = getItemPosition(parentItem, timelineHeight, svgHeight);
+
+    const childItem: RangeItem = this.timeline.itemSet.items[childId];
+    const end = getItemPosition(childItem, timelineHeight, svgHeight);
+    /*
+     * When the item is outside the window frame (i.e. horizontal overflow),
+     * the start / end coordinates are null.
+     */
+    if (start.right == null || start.left == null) {
+      // Put the start-task on the same horizonral level as the end-task.
+      start.midY = end.midY;
+      start.height = end.height;
+
+      start.right = 0;
+      start.left = 0;
     }
+    if (end.left == null) {
+      // Put the end-task on the same horizonral level as the start-task.
+      end.midY = start.midY;
+      end.height = start.height;
+
+      end.right = window.innerWidth;
+      end.left = window.innerWidth;
+    }
+    return { start, end };
   }
 
   private createPath(): SVGPathElement {
@@ -194,9 +226,13 @@ export class ArrowService {
 
 }
 
-function getItemPosition(item: RangeItem): ItemPosition {
+function getItemPosition(
+  item: RangeItem, parentHeight: number, containerHeight: number)
+  : ItemPosition {
   const leftX = item.left;
-  const topY = item.parent.top + item.parent.height - item.top - item.height;
+  const offSet = containerHeight - parentHeight;
+  const topY = item.parent.top + item.parent.height - item.top - item.height +
+    offSet;
   return {
     left: leftX,
     top: topY,
