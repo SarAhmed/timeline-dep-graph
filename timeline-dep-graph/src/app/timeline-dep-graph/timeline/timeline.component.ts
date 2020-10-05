@@ -29,35 +29,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-              private readonly arrowService: ArrowService,
+    private readonly arrowService: ArrowService,
   ) { }
 
   @Input() tasks: Task[] = [];
-
-  /**
-   * The height of the timeline is in pixels or as a percentage.
-   * When height is undefined or null,
-   * the height of the timeline is automatically adjusted to fit the contents.
-   * ```
-   * height = 400; // Sets the timeline's height to 400px
-   * height = "400px"; // Sets the timeline's height to 400px
-   * height = "50%"; // Timeline spans 50% of its parent's height.
-   * ```
-   * It is possible to set a maximum height using option `maxHeight`;
-   * to prevent the timeline from getting too high;
-   * in case of automatically calculated height.
-   */
-  @Input() height?: number | string;
-
-  /**
-   * The maxHeight of the timeline is in pixels or as a percentage.
-   * ```
-   * maxHeight = 400; // Sets the timeline's maximum height to 400px.
-   * maxHeight = "400px"; // Sets the timeline's maximum height to 400px.
-   * maxHeight = "50%"; // Timeline spans in maximum 50% of its parent's height.
-   * ```
-   */
-  @Input() maxHeight?: number | string;
 
   /**
    * The minHeight of the timeline is in pixels or as a percentage.
@@ -101,7 +76,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
 
   private updateDepGraph(updatedTasks: DependecyChanges): void {
     this.updateItems(updatedTasks);
-    this.arrowService.updateArrows(updatedTasks);
+    this.arrowService.updateDependencies(updatedTasks);
   }
 
   private updateItems(updatedTasks: DependecyChanges): void {
@@ -138,14 +113,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       start: timelineStart.getTime(),
     };
 
-    if (this.height != null) {
-      timelineOptions.height = this.height;
-    }
     if (this.width != null) {
       timelineOptions.width = this.width;
-    }
-    if (this.maxHeight != null) {
-      timelineOptions.maxHeight = this.maxHeight;
     }
     if (this.minHeight != null) {
       timelineOptions.minHeight = this.minHeight;
