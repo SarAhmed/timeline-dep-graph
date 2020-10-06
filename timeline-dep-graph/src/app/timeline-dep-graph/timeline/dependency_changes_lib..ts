@@ -6,7 +6,14 @@ interface TaskChangesHolder {
   curr?: Task;
 }
 
-export interface DependecyChanges {
+/**
+ * DependencyChanges represnts the changes to be done in the dependency graph.
+ * `add` - Holds the tasks to be added to the dependency graph.
+ * `remove` - Holds the tasks to be removed from the dependency graph.
+ * `update` - Holds the tasks whose details are changed
+ * and needs to be updated on the dependency graph.
+ */
+export interface DependencyChanges {
   add: Task[];
   remove: Task[];
   update: Task[];
@@ -17,8 +24,8 @@ export interface DependecyChanges {
  * @param curr The current state of tasks array.
  * @return     The changes between the previous state and the current state.
  */
-export function getDependecyChanges(prev: Task[], curr: Task[])
-  : DependecyChanges {
+export function getdependencyChanges(prev: Task[], curr: Task[])
+  : DependencyChanges {
   const map = new Map<TaskId, TaskChangesHolder>();
 
   for (const task of prev) {
@@ -33,7 +40,7 @@ export function getDependecyChanges(prev: Task[], curr: Task[])
     }
   }
 
-  const updatedTasks: DependecyChanges = {
+  const updatedTasks: DependencyChanges = {
     add: [],
     remove: [],
     update: [],

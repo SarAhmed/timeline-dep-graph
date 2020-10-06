@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 
-import { Task } from './timeline-dep-graph/Task';
 import { Status } from './timeline-dep-graph/Status';
+import { Task, TaskId } from './timeline-dep-graph/Task';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
   constructor(private readonly cdRef: ChangeDetectorRef) { }
 
   tasksDemo: Task[];
+  focus: TaskId;
 
   ngOnInit(): void {
     const task1: Task = {
@@ -64,12 +65,13 @@ export class AppComponent implements OnInit {
         startTime: new Date('2020-09-29'),
         finishTime: new Date('2020-10-1'),
       };
-
+      this.focus = '3';
       this.tasksDemo = [taskOne, task2, task3, task4];
       this.cdRef.detectChanges();
     }, 2000);
 
     setTimeout(() => {
+      this.focus = null;
       this.tasksDemo = [task3, task4];
       this.cdRef.detectChanges();
     }, 4000);
