@@ -10,26 +10,31 @@ import {
 } from '@angular/core';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
-import { Item, maptoItem } from './../Item';
-import { Task } from './../Task';
+import { ItemData, maptoItem } from './../Item';
+import { Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependecyChanges, getDependecyChanges } from './dependency_changes_lib.';
+import { TimeTooltipService } from './time_tooltip.service';
 
 @Component({
   selector: 'tdg-timeline',
-  providers: [ArrowService],
+  providers: [
+    ArrowService,
+    TimeTooltipService,
+  ],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements AfterViewInit, OnChanges {
 
   timeline: Timeline;
-  private items = new DataSet<Item>();
+  private items = new DataSet<ItemData>();
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
               private readonly arrowService: ArrowService,
+              private readonly timeTooltipService: TimeTooltipService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -54,9 +59,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
    */
   @Input() width?: number | string;
 
+  /**
+   * Adjust the visible window such that,
+   * the selected task is centered on screen.
+   */
+  @Input() focusTask?: TaskId;
+
   ngAfterViewInit(): void {
     this.renderTimeline();
     this.arrowService.setTimeline(this.timeline);
+    this.timeTooltipService.setTimeline(this.timeline);
     this.updateDepGraph({
       add: this.tasks,
       remove: [],
@@ -65,13 +77,32 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes.tasks || !this.timeline) {
+    if (!this.timeline) {
       return;
     }
-    const prev = changes.tasks.previousValue || [];
-    const curr = changes.tasks.currentValue || [];
-    const updatedTasks = getDependecyChanges(prev, curr);
-    this.updateDepGraph(updatedTasks);
+    if (changes.tasks) {
+      const prev = changes.tasks.previousValue || [];
+      const curr = changes.tasks.currentValue || [];
+      const updatedTasks = getDependecyChanges(prev, curr);
+      this.updateDepGraph(updatedTasks);
+    }
+    if (changes.focusTask) {
+      const prev = changes.focusTask.previousValue;
+      const curr = changes.focusTask.currentValue;
+      this.focusOn(prev, curr);
+    }
+  }
+
+  private focusOn(prev: ItemData, curr: ItemData): void {
+    if (prev) {
+      const prevItem = this.timeline.itemSet.items[prev].data;
+      this.removeHighlightOnItem(prevItem);
+    }
+    if (curr) {
+      const currItem = this.timeline.itemSet.items[curr].data;
+      this.timeline.focus(curr);
+      this.highlightItem(currItem);
+    }
   }
 
   private updateDepGraph(updatedTasks: DependecyChanges): void {
@@ -112,7 +143,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     const timelineOptions: TimelineOptions = {
       start: timelineStart.getTime(),
       template: this.generateItemTemplate,
-      order: (a: Item, b: Item) => a.id.localeCompare(b.id),
+      order: (a: ItemData, b: ItemData) => a.id.localeCompare(b.id),
     };
 
     if (this.width != null) {
@@ -125,15 +156,33 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     return timelineOptions;
   }
 
-  private generateItemTemplate(x: Item, y: HTMLElement, z: Item): string {
+  private generateItemTemplate(
+    before: ItemData, el: HTMLElement, after: ItemData): string {
     return `
     <div class="tdg-itemDetails">
-      <b>&nbsp;&nbsp;${x.name}</b>
+      <b>&nbsp;&nbsp;${before.name}</b>
       <svg class="tdg-task-progress-bar">
-        <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${x.status}"/>
+        <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
       </svg>
-      <small class="tdg-${x.status}">&nbsp;&nbsp;${x.status}</small>
+      <small class="tdg-${before.status}">&nbsp;&nbsp;${before.status}</small>
     </div>
     `;
+  }
+
+  private highlightItem(item: ItemData): void {
+    const originialClassName = item.className;
+    this.items.update({
+      id: item.id,
+      className: `${originialClassName} highlighted`,
+    });
+  }
+
+  private removeHighlightOnItem(item: ItemData): void {
+    console.log(item.id);
+    const originialClassName = item.className.replace(' highlighted', '');
+    this.items.update({
+      id: item.id,
+      className: originialClassName,
+    });
   }
 }

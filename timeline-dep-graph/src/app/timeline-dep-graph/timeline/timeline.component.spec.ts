@@ -1,3 +1,4 @@
+import { TimeTooltipService } from './time_tooltip.service';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -9,11 +10,15 @@ describe('TimelineComponent', () => {
   let component: TimelineComponent;
   let fixture: ComponentFixture<TimelineComponent>;
   let mockedArrowService: Partial<ArrowService>;
+  let mockedTimeTooltipService: Partial<ArrowService>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [TimelineComponent],
-      providers: [ArrowService],
+      providers: [
+        ArrowService,
+        TimeTooltipService,
+      ],
     })
       .compileComponents();
   });
@@ -21,6 +26,12 @@ describe('TimelineComponent', () => {
   beforeEach(() => {
     mockedArrowService = jasmine.createSpyObj<ArrowService>(['setTimeline', 'updateDependencies']);
     TestBed.overrideProvider(ArrowService, { useValue: mockedArrowService });
+
+    mockedTimeTooltipService =
+      jasmine.createSpyObj<ArrowService>(['setTimeline', 'updateDependencies']);
+    TestBed.overrideProvider(
+      ArrowService, { useValue: mockedTimeTooltipService }
+    );
 
     fixture = TestBed.createComponent(TimelineComponent);
     component = fixture.componentInstance;

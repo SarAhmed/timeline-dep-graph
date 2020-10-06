@@ -1,5 +1,5 @@
-import { Item } from './Item';
 import { Status } from './Status';
+
 export type TaskId = string;
 
 export interface Task {

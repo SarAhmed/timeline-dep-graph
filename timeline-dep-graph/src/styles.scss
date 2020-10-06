@@ -3,6 +3,7 @@ $success-color: green;
 $running-color: blue;
 $failed-color: red;
 $blocked-color: yellow;
+$highlight-color: rgba($color: #ffff99, $alpha: 0.5);
 
 .vis-item.transeparent{
   background-color: transparent;
@@ -13,6 +14,11 @@ $blocked-color: yellow;
       padding: 0px;
     }
   }
+}
+
+.vis-item.highlighted{
+  background-color: $highlight-color;
+  border-color: $highlight-color;
 }
 
 .tdg-itemDetails{

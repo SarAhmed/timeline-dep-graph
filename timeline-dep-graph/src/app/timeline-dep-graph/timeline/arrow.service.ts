@@ -2,30 +2,9 @@ import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
 import { Task } from '../Task';
+import { getItemPosition, ItemPosition, RangeItem } from './../Item';
 import { TaskId } from './../Task';
 import { DependecyChanges } from './dependency_changes_lib.';
-
-interface ItemPosition {
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
-  midX: number;
-  midY: number;
-  width: number;
-  height: number;
-}
-
-interface RangeItem {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  parent: {
-    top: number;
-    height: number;
-  };
-}
 
 interface ArrowCoordinates {
   start: ItemPosition;
@@ -224,25 +203,6 @@ export class ArrowService {
     return path;
   }
 
-}
-
-function getItemPosition(
-  item: RangeItem, parentHeight: number, containerHeight: number)
-  : ItemPosition {
-  const leftX = item.left;
-  const offSet = containerHeight - parentHeight;
-  const topY = item.parent.top + item.parent.height - item.top - item.height +
-    offSet;
-  return {
-    left: leftX,
-    top: topY,
-    right: leftX + item.width,
-    bottom: topY + item.height,
-    midX: leftX + item.width / 2,
-    midY: topY + item.height / 2,
-    width: item.width,
-    height: item.height
-  };
 }
 
 function setArrowCoordinates(
