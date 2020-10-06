@@ -13,7 +13,7 @@ import { DataSet, Timeline, TimelineOptions } from 'vis';
 import { ItemData, maptoItem } from './../Item';
 import { Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
-import { DependecyChanges, getDependecyChanges } from './dependency_changes_lib.';
+import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
 import { TimeTooltipService } from './time_tooltip.service';
 
 @Component({
@@ -83,7 +83,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     if (changes.tasks) {
       const prev = changes.tasks.previousValue || [];
       const curr = changes.tasks.currentValue || [];
-      const updatedTasks = getDependecyChanges(prev, curr);
+      const updatedTasks = getdependencyChanges(prev, curr);
       this.updateDepGraph(updatedTasks);
     }
     if (changes.focusTask) {
@@ -105,12 +105,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  private updateDepGraph(updatedTasks: DependecyChanges): void {
+  private updateDepGraph(updatedTasks: DependencyChanges): void {
     this.updateItems(updatedTasks);
     this.arrowService.updateDependencies(updatedTasks);
   }
 
-  private updateItems(updatedTasks: DependecyChanges): void {
+  private updateItems(updatedTasks: DependencyChanges): void {
     for (const task of updatedTasks.add) {
       const item = maptoItem(task);
       this.items.add(item);

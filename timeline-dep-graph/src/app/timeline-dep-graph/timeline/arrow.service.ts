@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
 import { Task } from '../Task';
-import { getItemPosition, ItemPosition, RangeItem } from './../Item';
+import { AbsolutePosition, getAbsolutePosition, RelativePosition } from './../Item';
 import { TaskId } from './../Task';
-import { DependecyChanges } from './dependency_changes_lib.';
+import { DependencyChanges } from './dependency_changes_lib.';
 
 interface ArrowCoordinates {
-  start: ItemPosition;
-  end: ItemPosition;
+  start: AbsolutePosition;
+  end: AbsolutePosition;
 }
 
 @Injectable()
@@ -28,7 +28,7 @@ export class ArrowService {
     });
   }
 
-  updateDependencies(changes: DependecyChanges): void {
+  updateDependencies(changes: DependencyChanges): void {
     this.removeArrows(changes.remove);
     this.addArrows(changes.add);
     this.updateArrows(changes.update);
@@ -161,11 +161,11 @@ export class ArrowService {
     const timelineHeight = this.timeline.dom.center.offsetHeight;
     const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
 
-    const parentItem: RangeItem = this.timeline.itemSet.items[parentId];
-    const start = getItemPosition(parentItem, timelineHeight, svgHeight);
+    const parentItem: RelativePosition = this.timeline.itemSet.items[parentId];
+    const start = getAbsolutePosition(parentItem, timelineHeight, svgHeight);
 
-    const childItem: RangeItem = this.timeline.itemSet.items[childId];
-    const end = getItemPosition(childItem, timelineHeight, svgHeight);
+    const childItem: RelativePosition = this.timeline.itemSet.items[childId];
+    const end = getAbsolutePosition(childItem, timelineHeight, svgHeight);
     /*
      * When the item is outside the window frame (i.e. horizontal overflow),
      * the start / end coordinates are null.
@@ -206,7 +206,7 @@ export class ArrowService {
 }
 
 function setArrowCoordinates(
-  arrow: SVGPathElement, start: ItemPosition, end: ItemPosition): void {
+  arrow: SVGPathElement, start: AbsolutePosition, end: AbsolutePosition): void {
   const bezierCurve = start.height * 2;
   arrow.setAttribute('marker-end', 'url(#arrowhead)');
   arrow.setAttribute(

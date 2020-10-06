@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { getItemPosition, ItemData } from './../Item';
+import { getAbsolutePosition, ItemData } from './../Item';
 
 interface Tooltip {
   el: HTMLElement;
@@ -87,7 +86,7 @@ export class TimeTooltipService {
       return;
     }
 
-    const itemPos = getItemPosition(item, timelineHeight, containerHeight);
+    const itemPos = getAbsolutePosition(item, timelineHeight, containerHeight);
     if (this.tooltip.hoverOnStart) {
       this.tooltip.el.style.left =
         `${itemPos.left - (this.tooltip.el.offsetWidth / 2)}px`;

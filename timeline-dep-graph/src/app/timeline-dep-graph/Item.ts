@@ -1,7 +1,7 @@
 import { Status } from './Status';
 import { Task } from './Task';
 
-// Item represents the vis.js API associated with a task.
+// ItemData represents the vis-item data.
 export interface ItemData {
   readonly 'id': string;
   name: string;
@@ -12,7 +12,10 @@ export interface ItemData {
   className?: string;
 }
 
-export interface ItemPosition {
+/**
+ * ItemPosition represents the absolute position of a vis-item.
+ */
+export interface AbsolutePosition {
   left: number;
   top: number;
   right: number;
@@ -23,7 +26,10 @@ export interface ItemPosition {
   height: number;
 }
 
-export interface RangeItem {
+/**
+ * RangeItem represents the relative position of a vis-item.
+ */
+export interface RelativePosition {
   top: number;
   left: number;
   width: number;
@@ -34,6 +40,10 @@ export interface RangeItem {
   };
 }
 
+/**
+ * @param task The task to be mapped into a vis-item
+ * @return The vis-item's data corresponding to the task fields.
+ */
 export function maptoItem(task: Task): ItemData {
   return {
     'id': task.id,
@@ -46,21 +56,27 @@ export function maptoItem(task: Task): ItemData {
   };
 }
 
-export function getItemPosition(
-  item: RangeItem, parentHeight: number, containerHeight: number)
-  : ItemPosition {
-  const leftX = item.left;
+/**
+ * @param rPos The relative position to be converted into absolute position.
+ * @param parentHeight The innerHeight of parent node of the item's container.
+ * @param containerHeight The innerHeight of the item's node.
+ * @return The absolute position of the item.
+ */
+export function getAbsolutePosition(
+  rPos: RelativePosition, parentHeight: number, containerHeight: number)
+  : AbsolutePosition {
+  const leftX = rPos.left;
   const offSet = containerHeight - parentHeight;
-  const topY = item.parent.top + item.parent.height - item.top - item.height +
+  const topY = rPos.parent.top + rPos.parent.height - rPos.top - rPos.height +
     offSet;
   return {
     left: leftX,
     top: topY,
-    right: leftX + item.width,
-    bottom: topY + item.height,
-    midX: leftX + item.width / 2,
-    midY: topY + item.height / 2,
-    width: item.width,
-    height: item.height
+    right: leftX + rPos.width,
+    bottom: topY + rPos.height,
+    midX: leftX + rPos.width / 2,
+    midY: topY + rPos.height / 2,
+    width: rPos.width,
+    height: rPos.height
   };
 }

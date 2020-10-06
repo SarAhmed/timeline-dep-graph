@@ -2,6 +2,9 @@ import { Status } from './Status';
 
 export type TaskId = string;
 
+/**
+ * Task represents a single node in the dependeny graph.
+ */
 export interface Task {
   readonly id: TaskId;
   name: string;
@@ -11,6 +14,12 @@ export interface Task {
   finishTime?: Date;
 }
 
+/**
+ * Checks if the tasks are equal in value ot not.
+ * @param task1 The first Task to be compared.
+ * @param task2 The second Task to be compared.
+ * @return Whether the compared tasks are equal in value or not.
+ */
 export function equalsTask(task1: Task, task2: Task): boolean {
   return equalTaskFields(task1, task2)
     && equalsTaskArray(task1.dependants, task2.dependants);
