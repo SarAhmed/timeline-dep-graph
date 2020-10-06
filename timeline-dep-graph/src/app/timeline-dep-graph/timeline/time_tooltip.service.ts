@@ -26,36 +26,38 @@ export class TimeTooltipService {
     });
 
     this.timeline.on('mouseOver', (prop) => {
-      // Show tooltip on hovering over item.
-      if (prop.what === 'item') {
-        this.clearTooltip();
-        const tooltipEl = this.createTooltipEl();
-
-        const itemId = prop.item;
-        const itemData: ItemData = this.timeline.itemSet.items[itemId].data;
-
-        const snappedTime = new Date(prop.time).getTime();
-        const start = itemData.start.getTime();
-        const end = itemData.end.getTime();
-        if (snappedTime - start < end - snappedTime) {
-          this.timeline.addCustomTime(start, 'customTimeBar');
-          tooltipEl.innerHTML = itemData.start.toISOString();
-          this.tooltip = {
-            el: tooltipEl,
-            itemId,
-            hoverOnStart: true,
-          };
-        } else {
-          this.timeline.addCustomTime(end, 'customTimeBar');
-          tooltipEl.innerHTML = itemData.end.toISOString();
-          this.tooltip = {
-            el: tooltipEl,
-            itemId,
-            hoverOnStart: false,
-          };
-        }
-        this.setTooltipCoordinates();
+      if (prop.what !== 'item') {
+        return;
       }
+      // Show tooltip on hovering over item.
+      this.clearTooltip();
+      const tooltipEl = this.createTooltipEl();
+
+      const itemId = prop.item;
+      const itemData: ItemData = this.timeline.itemSet.items[itemId].data;
+
+      const snappedTime = new Date(prop.time).getTime();
+      const start = itemData.start.getTime();
+      const end = itemData.end.getTime();
+      if (snappedTime - start < end - snappedTime) {
+        this.timeline.addCustomTime(start, 'customTimeBar');
+        tooltipEl.innerHTML = itemData.start.toISOString();
+        this.tooltip = {
+          el: tooltipEl,
+          itemId,
+          hoverOnStart: true,
+        };
+      } else {
+        this.timeline.addCustomTime(end, 'customTimeBar');
+        tooltipEl.innerHTML = itemData.end.toISOString();
+        this.tooltip = {
+          el: tooltipEl,
+          itemId,
+          hoverOnStart: false,
+        };
+      }
+      this.setTooltipCoordinates();
+
     });
 
     // Remove tooltip -if exists- on moving out an item.
