@@ -72,3 +72,9 @@ rect.tdg-blocked{
 small.tdg-blocked{
   color: $blocked-color;
 }
+
+rect.tdg-hirerachy{
+  stroke:black;
+  stroke-width: 1;
+  opacity: 0.1;
+}

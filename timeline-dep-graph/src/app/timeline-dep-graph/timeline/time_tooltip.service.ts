@@ -15,7 +15,7 @@ interface Tooltip {
 
 export class TimeTooltipService {
   private timeline: Timeline;
-  private tooltip: Tooltip;
+  private tooltip: Tooltip | null;
 
   setTimeline(timeline: Timeline): void {
     this.timeline = timeline;
@@ -37,6 +37,9 @@ export class TimeTooltipService {
       const itemData: ItemData = this.timeline.itemSet.items[itemId].data;
 
       const snappedTime = new Date(prop.time).getTime();
+      if (!itemData.start || !itemData.end) {
+        return;
+      }
       const start = itemData.start.getTime();
       const end = itemData.end.getTime();
       if (snappedTime - start < end - snappedTime) {

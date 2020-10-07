@@ -9,7 +9,7 @@ export interface ItemData {
   content: string;
   start?: Date;
   end?: Date;
-  className?: string;
+  className: string;
 }
 
 /**
@@ -78,5 +78,29 @@ export function getAbsolutePosition(
     midY: topY + rPos.height / 2,
     width: rPos.width,
     height: rPos.height
+  };
+}
+
+/**
+ * Compute the minimum bounding box contatining all the provided items.
+ * @param positions Array of the items' positions.
+ * @return The minimum bounding box position.
+ */
+export function getBoundingBox(positions: AbsolutePosition[])
+  : AbsolutePosition {
+  const maxX = positions.reduce((a, b) => a.right > b.right ? a : b).right;
+  const minX = positions.reduce((a, b) => a.left < b.left ? a : b).left;
+  const minY = positions.reduce((a, b) => a.top < b.top ? a : b).top;
+  const maxY = positions.reduce((a, b) => a.bottom > b.bottom ? a : b).bottom;
+
+  return {
+    left: minX,
+    top: minY,
+    right: maxX,
+    bottom: maxY,
+    midX: minX + (maxX - minX) / 2,
+    midY: minY + (maxY - minY) / 2,
+    width: maxX - minX,
+    height: maxY - minY
   };
 }

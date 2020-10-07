@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { Timeline } from 'vis';
 
+import { Status } from '../Status';
 import { Task } from '../Task';
 import { ArrowService } from './arrow.service';
-import { Status } from '../Status';
 
 describe('ArrowService', () => {
   let service: ArrowService;
@@ -42,6 +42,7 @@ describe('ArrowService', () => {
       name: 'Task 1',
       status: Status.SUCCESS,
       dependants: [],
+      subTasks: [],
       startTime: new Date('2020-09-28'),
       finishTime: new Date('2020-09-29'),
     };
@@ -50,6 +51,7 @@ describe('ArrowService', () => {
       name: 'Task 2',
       status: Status.SUCCESS,
       dependants: [],
+      subTasks: [],
       startTime: new Date('2020-10-02'),
       finishTime: new Date('2020-10-03'),
     };
@@ -58,6 +60,7 @@ describe('ArrowService', () => {
       name: 'Task 3',
       status: Status.SUCCESS,
       dependants: [],
+      subTasks: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
     };
@@ -66,6 +69,7 @@ describe('ArrowService', () => {
       name: 'Task 4',
       status: Status.SUCCESS,
       dependants: [],
+      subTasks: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
     };
