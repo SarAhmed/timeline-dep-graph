@@ -10,9 +10,6 @@ interface HirerachyElements {
   taskName: SVGTextElement;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
 export class HirerachyService {
   private svg: SVGSVGElement;
   private timeline: Timeline;

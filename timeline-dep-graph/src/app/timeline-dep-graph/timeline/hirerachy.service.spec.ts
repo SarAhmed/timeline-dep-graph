@@ -6,11 +6,15 @@ describe('HirerachyService', () => {
   let service: HirerachyService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        HirerachyService,
+      ]
+    });
     service = TestBed.inject(HirerachyService);
   });
 
-  it('should be created', () => {
+  it('creates the service', () => {
     expect(service).toBeTruthy();
   });
 });
