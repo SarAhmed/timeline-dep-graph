@@ -9,7 +9,7 @@ export interface ItemData {
   content: string;
   start?: Date;
   end?: Date;
-  className?: string;
+  className: string;
 }
 
 /**
@@ -65,9 +65,6 @@ export function maptoItem(task: Task): ItemData {
 export function getAbsolutePosition(
   rPos: RelativePosition, parentHeight: number, containerHeight: number)
   : AbsolutePosition {
-  if (rPos == null) {
-    return null;
-  }
   const leftX = rPos.left;
   const offSet = containerHeight - parentHeight;
   const topY = rPos.parent.top + rPos.parent.height - rPos.top - rPos.height +
@@ -91,11 +88,6 @@ export function getAbsolutePosition(
  */
 export function getBoundingBox(positions: AbsolutePosition[])
   : AbsolutePosition {
-  if (positions == null) {
-    return null;
-  }
-  positions = positions.filter(p => p != null);
-
   const maxX = positions.reduce((a, b) => a.right > b.right ? a : b).right;
   const minX = positions.reduce((a, b) => a.left < b.left ? a : b).left;
   const minY = positions.reduce((a, b) => a.top < b.top ? a : b).top;

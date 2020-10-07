@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { Task, rootTasks, leafTasks } from '../Task';
-import { AbsolutePosition, getAbsolutePosition, RelativePosition, ItemData } from './../Item';
+import { leafTasks, rootTasks, Task } from '../Task';
+import { AbsolutePosition, getAbsolutePosition, RelativePosition } from './../Item';
 import { TaskId } from './../Task';
 import { DependencyChanges } from './dependency_changes_lib.';
 
@@ -106,7 +106,7 @@ export class ArrowService {
         }
       }
 
-      for (const [childId, arrow] of outgoingArrows) {
+      for (const [childId, arrow] of outgoingArrows || []) {
         if (!childrenIds.has(childId)) {
           this.removeArrow(task.id, childId, arrow);
         }
@@ -167,8 +167,8 @@ export class ArrowService {
 
   private removeArrow(parentId: TaskId, childId: TaskId, arrow: SVGPathElement):
     void {
-    this.outgoingArrowsMap.get(parentId).delete(childId);
-    this.incomingArrowsMap.get(childId).delete(parentId);
+    this.outgoingArrowsMap.get(parentId)?.delete(childId);
+    this.incomingArrowsMap.get(childId)?.delete(parentId);
     this.svg.removeChild(arrow);
   }
 
@@ -223,21 +223,22 @@ export class ArrowService {
     }
   }
 
-  private getArrowCoordinates(parentId: string, childId): ArrowCoordinates {
+  private getArrowCoordinates(parentId: string, childId)
+    : ArrowCoordinates | undefined {
     const timelineHeight = this.timeline.dom.center.offsetHeight;
     const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
 
     const parentItem: RelativePosition = this.timeline.itemSet.items[parentId];
-    const start = getAbsolutePosition(parentItem, timelineHeight, svgHeight);
-    if (start == null) {
+    if (parentItem == null) {
       return;
     }
+    const start = getAbsolutePosition(parentItem, timelineHeight, svgHeight);
 
     const childItem: RelativePosition = this.timeline.itemSet.items[childId];
-    const end = getAbsolutePosition(childItem, timelineHeight, svgHeight);
-    if (end == null) {
+    if (childItem == null) {
       return;
     }
+    const end = getAbsolutePosition(childItem, timelineHeight, svgHeight);
     /*
      * When the item is outside the window frame (i.e. horizontal overflow),
      * the start / end coordinates are null.

@@ -79,7 +79,9 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       }
       const itemId = props.items[0];
       const task = getTaskById(this.tasks, itemId);
-      this.expandtask(task);
+      if (task) {
+        this.expandtask(task);
+      }
     });
 
     this.updateDepGraph({

@@ -29,7 +29,7 @@ export class HirerachyService {
   }
 
   setHirerachy(task: Task): void {
-    const positions = this.getTasksPositions(task);
+    const positions = this.getTasksPositions(task.subTasks);
     const boundingBox = getBoundingBox(positions);
 
     const rect = this.createRect();
@@ -45,7 +45,7 @@ export class HirerachyService {
 
   private updateHirerachy(): void {
     for (const hirerachy of this.hirerachyMap.values()) {
-      const positions = this.getTasksPositions(hirerachy.task);
+      const positions = this.getTasksPositions(hirerachy.task.subTasks);
       const boundingBox = getBoundingBox(positions);
 
       setRectCoordinates(hirerachy.rect, boundingBox);
@@ -53,14 +53,17 @@ export class HirerachyService {
     }
   }
 
-  private getTasksPositions(task: Task): AbsolutePosition[] {
-    return task.subTasks.map(t => {
+  private getTasksPositions(tasks: Task[]): AbsolutePosition[] {
+    return tasks.map(t => {
       const timelineHeight = this.timeline.dom.center.offsetHeight;
       const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
 
       const item: RelativePosition = this.timeline.itemSet.items[t.id];
+      if (!item) {
+        return undefined;
+      }
       return getAbsolutePosition(item, timelineHeight, svgHeight);
-    });
+    }).filter((t): t is AbsolutePosition => !!t);
   }
 
   private renderSVG(): void {

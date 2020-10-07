@@ -12,7 +12,7 @@ export interface Task {
   dependants: Task[];
   startTime?: Date;
   finishTime?: Date;
-  subTasks?: Task[];
+  subTasks: Task[];
 }
 
 /**
@@ -33,19 +33,16 @@ export function equalsTask(task1: Task, task2: Task): boolean {
  * @return Array of tasks that do not depend on any other task.
  */
 export function rootTasks(tasks: Task[]): Task[] {
-  if (tasks == null) {
-    return null;
-  }
   const roots: Task[] = [];
   const visited = new Set<TaskId>();
-  for (const item of tasks) {
-    if (!visited.has(item.id)) {
-      dfsTraversal(item, visited);
+  for (const task of tasks) {
+    if (!visited.has(task.id)) {
+      dfsTraversal(task, visited);
     }
   }
-  for (const item of tasks) {
-    if (!visited.has(item.id)) {
-      roots.push(item);
+  for (const task of tasks) {
+    if (!visited.has(task.id)) {
+      roots.push(task);
     }
   }
   return roots;
@@ -58,13 +55,10 @@ export function rootTasks(tasks: Task[]): Task[] {
  * @return Array of tasks that do not have any dependants.
  */
 export function leafTasks(tasks: Task[]): Task[] {
-  if (tasks == null) {
-    return null;
-  }
   const leafs: Task[] = [];
-  for (const item of tasks) {
-    if (item.dependants == null || item.dependants.length === 0) {
-      leafs.push(item);
+  for (const task of tasks) {
+    if (task.dependants == null || task.dependants.length === 0) {
+      leafs.push(task);
     }
   }
   return leafs;
@@ -72,42 +66,35 @@ export function leafTasks(tasks: Task[]): Task[] {
 
 /**
  * Given an array of tasks and an id, return the task assositated with that id.
- * If the task is not found, return null instead.
+ * If the task is not found, return undefined instead.
  * @param tasks Array of tasks where the search will be done.
  * @param taskId The id corresponding to the task.
  * @return The task associated with the given id.
  */
-export function getTaskById(tasks: Task[], taskId: TaskId): Task {
-  if (tasks == null) {
-    return null;
+export function getTaskById(tasks: Task[], taskId: TaskId): Task | undefined {
+  for (const task of tasks) {
+    if (task.id === taskId) { return task; }
+    const t = getTaskById(task.subTasks, taskId);
+    if (t) { return t; }
   }
-  for (const item of tasks) {
-    if (item.id === taskId) { return item; }
-    const t = getTaskById(item.subTasks, taskId);
-    if (t !== null) { return t; }
-  }
-  return null;
+  return undefined;
 }
 
-function dfsTraversal(curr: Task, visisted: Set<TaskId>): Task {
+function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
   for (const dep of curr.dependants) {
     if (!visisted.has(dep.id)) {
       visisted.add(dep.id);
-      const t = dfsTraversal(dep, visisted);
-      if (t !== null) {
-        return t;
-      }
+      dfsTraversal(dep, visisted);
     }
   }
-  return null;
 }
 
 function equalTaskFields(task1: Task, task2: Task): boolean {
   return task1.id === task2.id
     && task1.name === task2.name
     && task1.status === task2.status
-    && task1.startTime.getTime() === task2.startTime.getTime()
-    && task1.finishTime.getTime() === task2.finishTime.getTime();
+    && task1.startTime?.getTime() === task2.startTime?.getTime()
+    && task1.finishTime?.getTime() === task2.finishTime?.getTime();
 }
 
 function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {

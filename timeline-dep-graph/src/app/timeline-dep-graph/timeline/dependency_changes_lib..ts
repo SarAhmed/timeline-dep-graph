@@ -34,7 +34,7 @@ export function getdependencyChanges(prev: Task[], curr: Task[])
 
   for (const task of curr) {
     if (map.has(task.id)) {
-      map.get(task.id).curr = task;
+      map.get(task.id)!.curr = task;
     } else {
       map.set(task.id, { curr: task });
     }
@@ -49,11 +49,11 @@ export function getdependencyChanges(prev: Task[], curr: Task[])
     const prevTask = val.prev;
     const currTask = val.curr;
 
-    if (!currTask) {
+    if (!currTask && prevTask) {
       updatedTasks.remove.push(prevTask);
-    } else if (!prevTask) {
+    } else if (!prevTask && currTask) {
       updatedTasks.add.push(currTask);
-    } else if (!equalsTask(currTask, prevTask)) {
+    } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
       updatedTasks.update.push(currTask);
     }
   }
