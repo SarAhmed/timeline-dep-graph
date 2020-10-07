@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { Task } from '../Task';
-import { AbsolutePosition, getAbsolutePosition, RelativePosition } from './../Item';
+import { Task, rootTasks, leafTasks } from '../Task';
+import { AbsolutePosition, getAbsolutePosition, RelativePosition, ItemData } from './../Item';
 import { TaskId } from './../Task';
 import { DependencyChanges } from './dependency_changes_lib.';
 
@@ -26,12 +26,72 @@ export class ArrowService {
     this.timeline.on('changed', () => {
       this.updateArrowsCoordinates();
     });
+
   }
 
   updateDependencies(changes: DependencyChanges): void {
     this.removeArrows(changes.remove);
     this.addArrows(changes.add);
     this.updateArrows(changes.update);
+  }
+
+  setExpandedTaskDependencies(task: Task): void {
+    if (task.subTasks == null || task.subTasks.length === 0) {
+      return;
+    }
+    const roots = rootTasks(task.subTasks);
+    const leafs = leafTasks(task.subTasks);
+
+    // Set outgoing arrows' start point to the latest sub-task.
+    const outgoingArrows = this.outgoingArrowsMap.get(task.id);
+    if (outgoingArrows && leafs) {
+      for (const childId of outgoingArrows.keys()) {
+        for (const leaf of leafs) {
+          this.addArrow(leaf.id, childId);
+        }
+      }
+    }
+
+    // Set incoming arrows' end point to the earliest sub-task.
+    const incomingArrows = this.incomingArrowsMap.get(task.id);
+    if (incomingArrows && roots) {
+      for (const parentId of incomingArrows.keys()) {
+        for (const root of roots) {
+          this.addArrow(parentId, root.id);
+        }
+      }
+    }
+
+    this.removeArrows([task]);
+  }
+
+  setCompressedTaskDependencies(task: Task): void {
+    const roots = rootTasks(task.subTasks);
+    const leafs = leafTasks(task.subTasks);
+
+    // Set outgoing arrows' start point to the parent task.
+    for (const leaf of leafs) {
+      const outgoingArrows = this.outgoingArrowsMap.get(leaf.id);
+      if (outgoingArrows) {
+        for (const [childId, arrow] of outgoingArrows) {
+          this.addArrow(task.id, childId);
+          this.removeArrow(leaf.id, childId, arrow);
+        }
+      }
+    }
+
+    // Set incoming arrows' end point to the parent task.
+    for (const root of roots) {
+      const incomingArrows = this.incomingArrowsMap.get(root.id);
+      if (incomingArrows) {
+        for (const [parentId, arrow] of incomingArrows) {
+          this.addArrow(parentId, task.id);
+          this.removeArrow(parentId, root.id, arrow);
+        }
+      }
+    }
+
+    this.removeArrows(task.subTasks);
   }
 
   private updateArrows(tasks: Task[]): void {
@@ -64,6 +124,9 @@ export class ArrowService {
 
   private addArrow(parentId: TaskId, childId: TaskId): void {
     const arrowCoordinates = this.getArrowCoordinates(parentId, childId);
+    if (arrowCoordinates == null) {
+      return;
+    }
     const arrow = this.createPath();
     setArrowCoordinates(arrow, arrowCoordinates.start, arrowCoordinates.end);
 
@@ -151,6 +214,9 @@ export class ArrowService {
     for (const [parentId, children] of this.outgoingArrowsMap) {
       for (const [childId, arrow] of children) {
         const arrowCoordinates = this.getArrowCoordinates(parentId, childId);
+        if (arrowCoordinates == null) {
+          continue;
+        }
         setArrowCoordinates(
           arrow, arrowCoordinates.start, arrowCoordinates.end);
       }
@@ -163,9 +229,15 @@ export class ArrowService {
 
     const parentItem: RelativePosition = this.timeline.itemSet.items[parentId];
     const start = getAbsolutePosition(parentItem, timelineHeight, svgHeight);
+    if (start == null) {
+      return;
+    }
 
     const childItem: RelativePosition = this.timeline.itemSet.items[childId];
     const end = getAbsolutePosition(childItem, timelineHeight, svgHeight);
+    if (end == null) {
+      return;
+    }
     /*
      * When the item is outside the window frame (i.e. horizontal overflow),
      * the start / end coordinates are null.

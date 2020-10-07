@@ -65,6 +65,9 @@ export function maptoItem(task: Task): ItemData {
 export function getAbsolutePosition(
   rPos: RelativePosition, parentHeight: number, containerHeight: number)
   : AbsolutePosition {
+  if (rPos == null) {
+    return null;
+  }
   const leftX = rPos.left;
   const offSet = containerHeight - parentHeight;
   const topY = rPos.parent.top + rPos.parent.height - rPos.top - rPos.height +
@@ -78,5 +81,34 @@ export function getAbsolutePosition(
     midY: topY + rPos.height / 2,
     width: rPos.width,
     height: rPos.height
+  };
+}
+
+/**
+ * Compute the minimum bounding box contatining all the provided items.
+ * @param positions Array of the items' positions.
+ * @return The minimum bounding box position.
+ */
+export function getBoundingBox(positions: AbsolutePosition[])
+  : AbsolutePosition {
+  if (positions == null) {
+    return null;
+  }
+  positions = positions.filter(p => p != null);
+
+  const maxX = positions.reduce((a, b) => a.right > b.right ? a : b).right;
+  const minX = positions.reduce((a, b) => a.left < b.left ? a : b).left;
+  const minY = positions.reduce((a, b) => a.top < b.top ? a : b).top;
+  const maxY = positions.reduce((a, b) => a.bottom > b.bottom ? a : b).bottom;
+
+  return {
+    left: minX,
+    top: minY,
+    right: maxX,
+    bottom: maxY,
+    midX: minX + (maxX - minX) / 2,
+    midY: minY + (maxY - minY) / 2,
+    width: maxX - minX,
+    height: maxY - minY
   };
 }

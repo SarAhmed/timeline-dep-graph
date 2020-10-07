@@ -11,9 +11,10 @@ import {
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem } from './../Item';
-import { Task, TaskId } from './../Task';
+import { getTaskById, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
+import { HirerachyService } from './hirerachy.service';
 import { TimeTooltipService } from './time_tooltip.service';
 
 @Component({
@@ -21,6 +22,7 @@ import { TimeTooltipService } from './time_tooltip.service';
   providers: [
     ArrowService,
     TimeTooltipService,
+    HirerachyService,
   ],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
@@ -35,6 +37,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   constructor(private readonly cdRef: ChangeDetectorRef,
               private readonly arrowService: ArrowService,
               private readonly timeTooltipService: TimeTooltipService,
+              private readonly hirerachyService: HirerachyService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -69,6 +72,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     this.renderTimeline();
     this.arrowService.setTimeline(this.timeline);
     this.timeTooltipService.setTimeline(this.timeline);
+    this.hirerachyService.setTimeline(this.timeline);
+    this.timeline.on('select', (props: { items: string }) => {
+      if (props == null || props.items.length === 0) {
+        return;
+      }
+      const itemId = props.items[0];
+      const task = getTaskById(this.tasks, itemId);
+      this.expandtask(task);
+    });
+
     this.updateDepGraph({
       add: this.tasks,
       remove: [],
@@ -91,6 +104,27 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       const curr = changes.focusTask.currentValue;
       this.focusOn(prev, curr);
     }
+  }
+
+  private expandtask(task: Task): void {
+    if (task == null || task.subTasks == null || task.subTasks.length === 0) {
+      return;
+    }
+    this.updateDepGraph({
+      add: task.subTasks || [],
+      remove: [],
+      update: []
+    });
+
+    this.arrowService.setExpandedTaskDependencies(task);
+
+    this.updateDepGraph({
+      add: [],
+      remove: [task],
+      update: []
+    });
+
+    this.hirerachyService.setHirerachy(task);
   }
 
   private focusOn(prev: ItemData, curr: ItemData): void {
@@ -178,7 +212,6 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   }
 
   private removeHighlightOnItem(item: ItemData): void {
-    console.log(item.id);
     const originialClassName = item.className.replace(' highlighted', '');
     this.items.update({
       id: item.id,

@@ -12,6 +12,7 @@ export interface Task {
   dependants: Task[];
   startTime?: Date;
   finishTime?: Date;
+  subTasks?: Task[];
 }
 
 /**
@@ -23,6 +24,82 @@ export interface Task {
 export function equalsTask(task1: Task, task2: Task): boolean {
   return equalTaskFields(task1, task2)
     && equalsTaskArray(task1.dependants, task2.dependants);
+}
+
+/**
+ * Given an array of tasks, return the tasks that
+ * do not depend on any other task.
+ * @param tasks Array of tasks representing a directed acyclic graph (DAG).
+ * @return Array of tasks that do not depend on any other task.
+ */
+export function rootTasks(tasks: Task[]): Task[] {
+  if (tasks == null) {
+    return null;
+  }
+  const roots: Task[] = [];
+  const visited = new Set<TaskId>();
+  for (const item of tasks) {
+    if (!visited.has(item.id)) {
+      dfsTraversal(item, visited);
+    }
+  }
+  for (const item of tasks) {
+    if (!visited.has(item.id)) {
+      roots.push(item);
+    }
+  }
+  return roots;
+}
+
+/**
+ * Given an array of tasks, return the tasks that
+ * do not have any dependants.
+ * @param tasks Array of tasks representing a directed acyclic graph (DAG).
+ * @return Array of tasks that do not have any dependants.
+ */
+export function leafTasks(tasks: Task[]): Task[] {
+  if (tasks == null) {
+    return null;
+  }
+  const leafs: Task[] = [];
+  for (const item of tasks) {
+    if (item.dependants == null || item.dependants.length === 0) {
+      leafs.push(item);
+    }
+  }
+  return leafs;
+}
+
+/**
+ * Given an array of tasks and an id, return the task assositated with that id.
+ * If the task is not found, return null instead.
+ * @param tasks Array of tasks where the search will be done.
+ * @param taskId The id corresponding to the task.
+ * @return The task associated with the given id.
+ */
+export function getTaskById(tasks: Task[], taskId: TaskId): Task {
+  if (tasks == null) {
+    return null;
+  }
+  for (const item of tasks) {
+    if (item.id === taskId) { return item; }
+    const t = getTaskById(item.subTasks, taskId);
+    if (t !== null) { return t; }
+  }
+  return null;
+}
+
+function dfsTraversal(curr: Task, visisted: Set<TaskId>): Task {
+  for (const dep of curr.dependants) {
+    if (!visisted.has(dep.id)) {
+      visisted.add(dep.id);
+      const t = dfsTraversal(dep, visisted);
+      if (t !== null) {
+        return t;
+      }
+    }
+  }
+  return null;
 }
 
 function equalTaskFields(task1: Task, task2: Task): boolean {
