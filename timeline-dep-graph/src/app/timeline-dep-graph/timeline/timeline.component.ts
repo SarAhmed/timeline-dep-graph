@@ -11,7 +11,7 @@ import {
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem } from './../Item';
-import { getTaskById, Task, TaskId } from './../Task';
+import { getDirectAncestor, getSuperTask, getTaskById, leafTasks, rootTasks, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
 import { HirerachyService } from './hirerachy.service';
@@ -83,6 +83,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
         this.expandtask(task);
       }
     });
+    this.hirerachyService.compressTask$.subscribe(itemId => {
+      const task = getTaskById(this.tasks, itemId);
+      if (task) {
+        this.compressTask(task);
+      }
+    });
 
     this.updateDepGraph({
       add: this.tasks,
@@ -113,12 +119,15 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       return;
     }
     this.updateDepGraph({
-      add: task.subTasks || [],
+      add: task.subTasks,
       remove: [],
       update: []
     });
-
-    this.arrowService.setExpandedTaskDependencies(task);
+    const head = this.getHead(task);
+    const tail = this.getTail(task);
+    console.log(task.id);
+    console.log(tail);
+    this.arrowService.setExpandedTaskDependencies(task, head, tail);
 
     this.updateDepGraph({
       add: [],
@@ -126,7 +135,57 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       update: []
     });
 
-    this.hirerachyService.setHirerachy(task);
+    this.hirerachyService.addHirerachyEl(task);
+  }
+
+  private compressTask(task: Task): void {
+    for (const sub of task.subTasks) {
+      if (this.hirerachyService.isExpanded(sub.id)) {
+        this.compressTask(sub);
+      }
+    }
+
+    this.hirerachyService.removeHirerachyEl(task.id);
+    this.updateDepGraph({
+      add: [task],
+      remove: task.subTasks,
+      update: getDirectAncestor(
+        getSuperTask(this.tasks, task.id)?.subTasks || this.tasks, task.id)
+    });
+
+
+    const supertask = getSuperTask(this.tasks, task.id);
+    if (supertask){
+      const head = this.getHead(supertask);
+      const tail = this.getTail(supertask);
+      this.arrowService.setExpandedTaskDependencies(task, head, tail);
+    }
+  }
+
+  private getHead(task: Task): Task[] {
+    const roots = rootTasks(task.subTasks);
+    const head: Task[] = [];
+    for (const root of roots) {
+      if (!this.hirerachyService.isExpanded(root.id)){
+        head.push(root);
+      }else{
+        head.concat(this.getHead(root));
+      }
+    }
+    return head;
+  }
+
+  private getTail(task: Task): Task[] {
+    const leafs = leafTasks(task.subTasks);
+    const tail: Task[] = [];
+    for (const leaf of leafs) {
+      if (!this.hirerachyService.isExpanded(leaf.id)){
+        tail.push(leaf);
+      }else{
+        tail.concat(this.getTail(leaf));
+      }
+    }
+    return tail;
   }
 
   private focusOn(prev: ItemData, curr: ItemData): void {

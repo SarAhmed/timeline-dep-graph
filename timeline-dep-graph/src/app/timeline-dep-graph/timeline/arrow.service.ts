@@ -35,63 +35,28 @@ export class ArrowService {
     this.updateArrows(changes.update);
   }
 
-  setExpandedTaskDependencies(task: Task): void {
-    if (task.subTasks == null || task.subTasks.length === 0) {
-      return;
-    }
-    const roots = rootTasks(task.subTasks);
-    const leafs = leafTasks(task.subTasks);
+  setExpandedTaskDependencies(task: Task, head: Task[], tail: Task[]): void {
+
 
     // Set outgoing arrows' start point to the latest sub-task.
     const outgoingArrows = this.outgoingArrowsMap.get(task.id);
-    if (outgoingArrows && leafs) {
+    if (outgoingArrows) {
       for (const childId of outgoingArrows.keys()) {
-        for (const leaf of leafs) {
-          this.addArrow(leaf.id, childId);
+        for (const t of tail) {
+          this.addArrow(t.id, childId);
         }
       }
     }
 
     // Set incoming arrows' end point to the earliest sub-task.
     const incomingArrows = this.incomingArrowsMap.get(task.id);
-    if (incomingArrows && roots) {
+    if (incomingArrows) {
       for (const parentId of incomingArrows.keys()) {
-        for (const root of roots) {
-          this.addArrow(parentId, root.id);
+        for (const h of head) {
+          this.addArrow(parentId, h.id);
         }
       }
     }
-
-    this.removeArrows([task]);
-  }
-
-  setCompressedTaskDependencies(task: Task): void {
-    const roots = rootTasks(task.subTasks);
-    const leafs = leafTasks(task.subTasks);
-
-    // Set outgoing arrows' start point to the parent task.
-    for (const leaf of leafs) {
-      const outgoingArrows = this.outgoingArrowsMap.get(leaf.id);
-      if (outgoingArrows) {
-        for (const [childId, arrow] of outgoingArrows) {
-          this.addArrow(task.id, childId);
-          this.removeArrow(leaf.id, childId, arrow);
-        }
-      }
-    }
-
-    // Set incoming arrows' end point to the parent task.
-    for (const root of roots) {
-      const incomingArrows = this.incomingArrowsMap.get(root.id);
-      if (incomingArrows) {
-        for (const [parentId, arrow] of incomingArrows) {
-          this.addArrow(parentId, task.id);
-          this.removeArrow(parentId, root.id, arrow);
-        }
-      }
-    }
-
-    this.removeArrows(task.subTasks);
   }
 
   private updateArrows(tasks: Task[]): void {
@@ -180,7 +145,7 @@ export class ArrowService {
     this.svg.style.height = '100%';
     this.svg.style.width = '100%';
     this.svg.style.display = 'block';
-    this.svg.style.zIndex = '-1';
+    this.svg.style.zIndex = '-2';
 
     this.timeline.dom.center.parentNode.appendChild(this.svg);
   }
@@ -223,7 +188,7 @@ export class ArrowService {
     }
   }
 
-  private getArrowCoordinates(parentId: string, childId)
+  private getArrowCoordinates(parentId: string, childId: string)
     : ArrowCoordinates | undefined {
     const timelineHeight = this.timeline.dom.center.offsetHeight;
     const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;

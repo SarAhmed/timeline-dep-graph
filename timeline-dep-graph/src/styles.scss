@@ -78,3 +78,21 @@ rect.tdg-hirerachy{
   stroke-width: 1;
   opacity: 0.1;
 }
+
+.vis-panel.vis-background{
+  z-index: -4;
+
+}
+
+.vis-panel.vis-center{
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.vis-content{
+  pointer-events: none;
+}
+
+svg{
+  pointer-events: all;
+}

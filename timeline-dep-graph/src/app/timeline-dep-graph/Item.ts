@@ -87,7 +87,10 @@ export function getAbsolutePosition(
  * @return The minimum bounding box position.
  */
 export function getBoundingBox(positions: AbsolutePosition[])
-  : AbsolutePosition {
+  : AbsolutePosition | undefined {
+  if (positions.length === 0) {
+    return undefined;
+  }
   const maxX = positions.reduce((a, b) => a.right > b.right ? a : b).right;
   const minX = positions.reduce((a, b) => a.left < b.left ? a : b).left;
   const minY = positions.reduce((a, b) => a.top < b.top ? a : b).top;

@@ -80,6 +80,30 @@ export function getTaskById(tasks: Task[], taskId: TaskId): Task | undefined {
   return undefined;
 }
 
+export function getDirectAncestor(tasks: Task[], taskId: TaskId): Task[] {
+  const ancestors: Task[] = [];
+  out: for (const task of tasks) {
+    for (const child of task.dependants) {
+      if (child.id === taskId) {
+        ancestors.push(task);
+        continue out;
+      }
+    }
+  }
+  return ancestors;
+}
+
+export function getSuperTask(tasks: Task[], taskId: TaskId): Task | undefined{
+  for (const task of tasks) {
+    for (const sub of task.subTasks) {
+      if (sub.id === taskId) {
+        return task;
+      }
+    }
+  }
+  return undefined;
+}
+
 function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
   for (const dep of curr.dependants) {
     if (!visisted.has(dep.id)) {
