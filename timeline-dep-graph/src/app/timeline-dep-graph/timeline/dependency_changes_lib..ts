@@ -1,5 +1,5 @@
 import { Task } from '../Task';
-import { equalsTask, TaskId } from './../Task';
+import { equalsTask, equalTaskFields, TaskId } from './../Task';
 
 interface TaskChangesHolder {
   prev?: Task;
@@ -48,15 +48,26 @@ export function getdependencyChanges(prev: Task[], curr: Task[])
   for (const val of map.values()) {
     const prevTask = val.prev;
     const currTask = val.curr;
-
     if (!currTask && prevTask) {
       updatedTasks.remove.push(prevTask);
     } else if (!prevTask && currTask) {
       updatedTasks.add.push(currTask);
     } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
-      updatedTasks.update.push(currTask);
+      if (!equalTaskFields(currTask, prevTask)) {
+        updatedTasks.update.push(currTask);
+      }
+      const subTasksChanges =
+        getdependencyChanges(prevTask.subTasks, currTask.subTasks);
+      updatedTasks.add = [...updatedTasks.add, ...subTasksChanges.add];
+      updatedTasks.update = [
+        ...updatedTasks.update,
+        ...(subTasksChanges.update)
+      ];
+      updatedTasks.remove = [
+        ...updatedTasks.remove,
+        ...(subTasksChanges.remove)
+      ];
     }
   }
-
   return updatedTasks;
 }

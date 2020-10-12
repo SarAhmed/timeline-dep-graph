@@ -16,14 +16,15 @@ export interface Task {
 }
 
 /**
- * Checks if the tasks are equal in value ot not.
+ * Checks if the tasks are equal in value or not.
  * @param task1 The first Task to be compared.
  * @param task2 The second Task to be compared.
  * @return Whether the compared tasks are equal in value or not.
  */
 export function equalsTask(task1: Task, task2: Task): boolean {
   return equalTaskFields(task1, task2)
-    && equalsTaskArray(task1.dependants, task2.dependants);
+    && equalsTaskArray(task1.dependants, task2.dependants)
+    && equalsTaskArray(task1.subTasks, task2.subTasks);
 }
 
 /**
@@ -57,7 +58,7 @@ export function rootTasks(tasks: Task[]): Task[] {
 export function leafTasks(tasks: Task[]): Task[] {
   const leafs: Task[] = [];
   for (const task of tasks) {
-    if (task.dependants == null || task.dependants.length === 0) {
+    if (task.dependants.length === 0) {
       leafs.push(task);
     }
   }
@@ -80,16 +81,35 @@ export function getTaskById(tasks: Task[], taskId: TaskId): Task | undefined {
   return undefined;
 }
 
-function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
-  for (const dep of curr.dependants) {
-    if (!visisted.has(dep.id)) {
-      visisted.add(dep.id);
-      dfsTraversal(dep, visisted);
+/**
+ * Given an array of tasks and an id, return the super task of that id.
+ * If the task is not found, return undefined instead.
+ * @param tasks Array of tasks where the search will be done.
+ * @param taskId The id corresponding to the task.
+ * @return The super task of the given id.
+ */
+export function getSuperTask(tasks: Task[], taskId: TaskId): Task | undefined {
+  for (const task of tasks) {
+    for (const sub of task.subTasks) {
+      if (sub.id === taskId) {
+        return task;
+      }
+    }
+    const sup = getSuperTask(task.subTasks, taskId);
+    if (sup) {
+      return sup;
     }
   }
+  return undefined;
 }
 
-function equalTaskFields(task1: Task, task2: Task): boolean {
+/**
+ * Checks if the tasks' fields are equal or not.
+ * @param task1 The first Task to be compared.
+ * @param task2 The second Task to be compared.
+ * @return Whether the compared tasks' fields are equal or not.
+ */
+export function equalTaskFields(task1: Task, task2: Task): boolean {
   return task1.id === task2.id
     && task1.name === task2.name
     && task1.status === task2.status
@@ -97,7 +117,14 @@ function equalTaskFields(task1: Task, task2: Task): boolean {
     && task1.finishTime?.getTime() === task2.finishTime?.getTime();
 }
 
-function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {
+/**
+ * Checks if the given arrays have equal entries' fields
+ * or not regardless of the entries order.
+ * @param arr1 The first Task Array to be compared.
+ * @param arr2 The first Task Array to be compared.
+ * @return Whether the compared arrays' task fields are equal or not.
+ */
+export function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {
   if (arr1.length !== arr2.length) {
     return false;
   }
@@ -110,4 +137,13 @@ function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {
     }
   }
   return true;
+}
+
+function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
+  for (const dep of curr.dependants) {
+    if (!visisted.has(dep.id)) {
+      visisted.add(dep.id);
+      dfsTraversal(dep, visisted);
+    }
+  }
 }

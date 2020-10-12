@@ -1,3 +1,4 @@
+import { PositionService } from './position.service';
 import { TestBed } from '@angular/core/testing';
 import { Timeline } from 'vis';
 
@@ -7,14 +8,16 @@ import { ArrowService } from './arrow.service';
 
 describe('ArrowService', () => {
   let service: ArrowService;
-
+  let positionService: PositionService;
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         ArrowService,
+        PositionService,
       ]
     });
     service = TestBed.inject(ArrowService);
+    positionService = TestBed.inject(PositionService);
   });
 
   it('creates the service', () => {
@@ -88,6 +91,16 @@ describe('ArrowService', () => {
     };
 
     spyOn(document, 'createElementNS').and.callThrough();
+    spyOn(positionService, 'getTaskPositionById').and.returnValue({
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      midX: 0,
+      midY: 0,
+      width: 0,
+      height: 0,
+    });
 
     service.updateDependencies(changes);
 
@@ -96,7 +109,7 @@ describe('ArrowService', () => {
   });
 });
 
-interface RangeItem {
+interface RelativePosition {
   top: number;
   left: number;
   width: number;
@@ -125,8 +138,8 @@ function createMockTimeline(): Timeline {
   return mockTimeline;
 }
 
-function convertToItems(tasks: Task[]): { [_: string]: RangeItem; } {
-  const items: { [_: string]: RangeItem; } = {};
+function convertToItems(tasks: Task[]): { [_: string]: RelativePosition; } {
+  const items: { [_: string]: RelativePosition; } = {};
   for (const task of tasks) {
     items[task.id] = {
       top: 0,
