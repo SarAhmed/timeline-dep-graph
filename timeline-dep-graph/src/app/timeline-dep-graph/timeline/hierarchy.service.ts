@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Timeline } from 'vis';
 
 import { Task, TaskId } from '../Task';
@@ -17,7 +17,7 @@ export class HierarchyService {
   private timeline: Timeline;
   private hierarchyMap = new Map<TaskId, HierarchyElement>();
   private compressTask = new BehaviorSubject<TaskId>('-');
-  compressTask$ = this.compressTask.asObservable();
+  compressTask$: Observable<TaskId> = this.compressTask;
 
   constructor(private positionService: PositionService) { }
 

@@ -58,9 +58,15 @@ export function getdependencyChanges(prev: Task[], curr: Task[])
       }
       const subTasksChanges =
         getdependencyChanges(prevTask.subTasks, currTask.subTasks);
-      updatedTasks.add = updatedTasks.add.concat(subTasksChanges.add);
-      updatedTasks.update = updatedTasks.update.concat(subTasksChanges.update);
-      updatedTasks.remove = updatedTasks.remove.concat(subTasksChanges.remove);
+      updatedTasks.add = [...updatedTasks.add, ...subTasksChanges.add];
+      updatedTasks.update = [
+        ...updatedTasks.update,
+        ...(subTasksChanges.update)
+      ];
+      updatedTasks.remove = [
+        ...updatedTasks.remove,
+        ...(subTasksChanges.remove)
+      ];
     }
   }
   return updatedTasks;
