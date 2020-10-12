@@ -1,17 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HirerachyService } from './hirerachy.service';
+import { PositionService } from './position.service';
 
-describe('HirerachyService', () => {
-  let service: HirerachyService;
+describe('PositionService', () => {
+  let service: PositionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        HirerachyService,
+        PositionService,
       ]
     });
-    service = TestBed.inject(HirerachyService);
+    service = TestBed.inject(PositionService);
   });
 
   it('creates the service', () => {

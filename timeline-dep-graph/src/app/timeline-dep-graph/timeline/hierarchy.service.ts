@@ -1,41 +1,47 @@
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Timeline } from 'vis';
 
-import { AbsolutePosition, getAbsolutePosition, getBoundingBox, RelativePosition } from './../Item';
-import { Task, TaskId } from './../Task';
+import { Task, TaskId } from '../Task';
+import { AbsolutePosition, addPadding, addTopPadding, PositionService } from './position.service';
 
-interface HirerachyElement {
-  task: Task;
+interface HierarchyElement {
+  taskId: TaskId;
   rect: SVGRectElement;
   taskName: SVGTextElement;
 }
 
-export class HirerachyService {
+@Injectable()
+export class HierarchyService {
   private svg: SVGSVGElement;
   private timeline: Timeline;
-  private hirerachyMap = new Map<TaskId, HirerachyElement>();
+  private hierarchyMap = new Map<TaskId, HierarchyElement>();
   private compressTask = new BehaviorSubject<TaskId>('-');
   compressTask$ = this.compressTask.asObservable();
+
+  constructor(private positionService: PositionService) { }
 
   setTimeline(timeline: Timeline): void {
     this.timeline = timeline;
     this.renderSVG();
 
     this.timeline.on('changed', () => {
-      this.updateHirerachy();
+      this.updateHierarchyPositions();
     });
   }
 
-  addHirerachyEl(task: Task): void {
-    const positions = this.getTasksPositions(task.subTasks);
-    const boundingBox = getBoundingBox(positions);
+  addHierarchyEl(task: Task): void {
+    if (task.subTasks.length === 0) {
+      return;
+    }
+    const boundingBox = this.positionService.getTaskPosition(task);
     if (!boundingBox) {
       return;
     }
 
     const rect = this.createRect();
     rect.classList.add(`tdg-${task.status}`);
-    rect.classList.add('tdg-hirerachy');
+    rect.classList.add('tdg-hierarchy');
     rect.id = `tdg-expanded-${task.id}`;
     rect.addEventListener('click', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
@@ -45,54 +51,37 @@ export class HirerachyService {
 
     const taskName = this.createText(`&nbsp;&nbsp;${task.name}`);
 
-    this.hirerachyMap.set(task.id, { task, rect, taskName });
-    setHirerachyCoordinates(rect, taskName, boundingBox);
+    this.hierarchyMap.set(task.id, { taskId: task.id, rect, taskName });
   }
 
-  removeHirerachyEl(taskId: TaskId): void {
-    const hirerachyEl = this.hirerachyMap.get(taskId);
-    if (!hirerachyEl) {
+  removeHierarchyEl(taskId: TaskId): void {
+    const hierarchyEl = this.hierarchyMap.get(taskId);
+    if (!hierarchyEl) {
       return;
     }
-    this.hirerachyMap.delete(taskId);
-    this.svg.removeChild(hirerachyEl.rect);
-    this.svg.removeChild(hirerachyEl.taskName);
+    this.hierarchyMap.delete(taskId);
+    this.svg.removeChild(hierarchyEl.rect);
+    this.svg.removeChild(hierarchyEl.taskName);
+  }
+
+  updateHierarchyEl(task: Task): void {
+    this.removeHierarchyEl(task.id);
+    this.addHierarchyEl(task);
   }
 
   isExpanded(taskId: TaskId): boolean {
-    return this.hirerachyMap.has(taskId);
+    return this.hierarchyMap.has(taskId);
   }
 
-  private updateHirerachy(): void {
-    for (const hirerachy of this.hirerachyMap.values()) {
-      const positions = this.getTasksPositions(hirerachy.task.subTasks);
-      const boundingBox = getBoundingBox(positions);
-
+  private updateHierarchyPositions(): void {
+    for (const hierarchy of this.hierarchyMap.values()) {
+      const boundingBox =
+        this.positionService.getTaskPositionById(hierarchy.taskId);
       if (!boundingBox) {
         continue;
       }
-
-      setHirerachyCoordinates(hirerachy.rect, hirerachy.taskName, boundingBox);
+      setHierarchyCoordinates(hierarchy.rect, hierarchy.taskName, boundingBox);
     }
-  }
-
-  private getTasksPositions(tasks: Task[]): AbsolutePosition[] {
-    return tasks.map(t => {
-      const timelineHeight = this.timeline.dom.center.offsetHeight;
-      const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
-
-      const item: RelativePosition = this.timeline.itemSet.items[t.id];
-      if (!item) {
-        const subTasks = this.getTasksPositions(t.subTasks);
-        const bbox = getBoundingBox(subTasks);
-        if (bbox) {
-          addTopPadding(bbox, 20);
-          return bbox;
-        }
-        return undefined;
-      }
-      return getAbsolutePosition(item, timelineHeight, svgHeight);
-    }).filter((t): t is AbsolutePosition => !!t);
   }
 
   private renderSVG(): void {
@@ -104,10 +93,6 @@ export class HirerachyService {
     this.svg.style.width = '100%';
     this.svg.style.display = 'block';
     this.svg.style.zIndex = '-1';
-    this.svg.addEventListener('click',
-      () => {
-        console.log('console.log("wohoooo")');
-      });
 
     this.timeline.dom.center.parentNode.appendChild(this.svg);
   }
@@ -131,7 +116,6 @@ export class HirerachyService {
 
     return text;
   }
-
 }
 
 function setRectCoordinates(rect: SVGRectElement, bbox: AbsolutePosition)
@@ -148,22 +132,7 @@ function setTaskNameCoordinates(
   taskName.setAttribute('y', `${bbox.top}`);
 }
 
-function addTopPadding(bbox: AbsolutePosition, amount: number): void {
-  bbox.top -= amount;
-  bbox.height += amount;
-}
-
-function addBottomPadding(bbox: AbsolutePosition, amount: number): void {
-  bbox.bottom += amount;
-  bbox.height += amount;
-}
-
-function addPadding(bbox: AbsolutePosition, amount: number): void {
-  addTopPadding(bbox, amount);
-  addBottomPadding(bbox, amount);
-}
-
-function setHirerachyCoordinates(
+function setHierarchyCoordinates(
   rect: SVGRectElement, taskName: SVGTextElement, bbox: AbsolutePosition)
   : void {
   addPadding(bbox, 5);

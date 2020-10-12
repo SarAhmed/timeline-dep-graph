@@ -11,10 +11,11 @@ import {
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem } from './../Item';
-import { getDirectAncestor, getSuperTask, getTaskById, leafTasks, rootTasks, Task, TaskId } from './../Task';
+import { getSuperTask, getTaskById, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
-import { HirerachyService } from './hirerachy.service';
+import { HierarchyService } from './hierarchy.service';
+import { PositionService } from './position.service';
 import { TimeTooltipService } from './time_tooltip.service';
 
 @Component({
@@ -22,13 +23,13 @@ import { TimeTooltipService } from './time_tooltip.service';
   providers: [
     ArrowService,
     TimeTooltipService,
-    HirerachyService,
+    HierarchyService,
+    PositionService,
   ],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements AfterViewInit, OnChanges {
-
   timeline: Timeline;
   private items = new DataSet<ItemData>();
 
@@ -37,7 +38,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   constructor(private readonly cdRef: ChangeDetectorRef,
               private readonly arrowService: ArrowService,
               private readonly timeTooltipService: TimeTooltipService,
-              private readonly hirerachyService: HirerachyService,
+              private readonly hierarchyService: HierarchyService,
+              private readonly positionService: PositionService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -72,7 +74,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     this.renderTimeline();
     this.arrowService.setTimeline(this.timeline);
     this.timeTooltipService.setTimeline(this.timeline);
-    this.hirerachyService.setTimeline(this.timeline);
+    this.hierarchyService.setTimeline(this.timeline);
+    this.positionService.setTimeline(this.timeline);
+    this.positionService.setTasks(this.tasks);
+
     this.timeline.on('select', (props: { items: string }) => {
       if (props == null || props.items.length === 0) {
         return;
@@ -83,7 +88,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
         this.expandtask(task);
       }
     });
-    this.hirerachyService.compressTask$.subscribe(itemId => {
+    this.hierarchyService.compressTask$.subscribe(itemId => {
       const task = getTaskById(this.tasks, itemId);
       if (task) {
         this.compressTask(task);
@@ -101,10 +106,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     if (!this.timeline) {
       return;
     }
-    if (changes.tasks) {
+    if (changes.tasks) { // Update the affected tasks only.
       const prev = changes.tasks.previousValue || [];
       const curr = changes.tasks.currentValue || [];
+      this.positionService.setTasks(curr);
+
       const updatedTasks = getdependencyChanges(prev, curr);
+      updatedTasks.add = this.getVisibleTasks(updatedTasks.add);
+      updatedTasks.remove = this.getVisibleTasks(updatedTasks.remove);
+      updatedTasks.update = this.getVisibleTasks(updatedTasks.update);
+
       this.updateDepGraph(updatedTasks);
     }
     if (changes.focusTask) {
@@ -115,92 +126,82 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
   }
 
   private expandtask(task: Task): void {
-    if (task == null || task.subTasks == null || task.subTasks.length === 0) {
+    if (this.hierarchyService.isExpanded(task.id)){
       return;
     }
+    const sup = getSuperTask(this.tasks, task.id);
+    if (sup && !this.hierarchyService.isExpanded(sup.id)) {
+      this.expandtask(sup);
+    }
+
+    if (task.subTasks.length === 0) {
+      return;
+    }
+
     this.updateDepGraph({
       add: task.subTasks,
       remove: [],
       update: []
     });
-    const head = this.getHead(task);
-    const tail = this.getTail(task);
-    console.log(task.id);
-    console.log(tail);
-    this.arrowService.setExpandedTaskDependencies(task, head, tail);
 
-    this.updateDepGraph({
+    this.updateItems({
       add: [],
       remove: [task],
       update: []
     });
 
-    this.hirerachyService.addHirerachyEl(task);
+    this.hierarchyService.addHierarchyEl(task);
   }
 
   private compressTask(task: Task): void {
+    if (!this.hierarchyService.isExpanded(task.id)) {
+      return;
+    }
     for (const sub of task.subTasks) {
-      if (this.hirerachyService.isExpanded(sub.id)) {
-        this.compressTask(sub);
-      }
+      this.compressTask(sub);
     }
 
-    this.hirerachyService.removeHirerachyEl(task.id);
     this.updateDepGraph({
-      add: [task],
+      add: [],
       remove: task.subTasks,
-      update: getDirectAncestor(
-        getSuperTask(this.tasks, task.id)?.subTasks || this.tasks, task.id)
+      update: [],
     });
 
+    this.updateItems({
+      add: [task],
+      remove: [],
+      update: [],
+    });
 
-    const supertask = getSuperTask(this.tasks, task.id);
-    if (supertask){
-      const head = this.getHead(supertask);
-      const tail = this.getTail(supertask);
-      this.arrowService.setExpandedTaskDependencies(task, head, tail);
-    }
+    this.hierarchyService.removeHierarchyEl(task.id);
   }
 
-  private getHead(task: Task): Task[] {
-    const roots = rootTasks(task.subTasks);
-    const head: Task[] = [];
-    for (const root of roots) {
-      if (!this.hirerachyService.isExpanded(root.id)){
-        head.push(root);
-      }else{
-        head.concat(this.getHead(root));
-      }
-    }
-    return head;
-  }
-
-  private getTail(task: Task): Task[] {
-    const leafs = leafTasks(task.subTasks);
-    const tail: Task[] = [];
-    for (const leaf of leafs) {
-      if (!this.hirerachyService.isExpanded(leaf.id)){
-        tail.push(leaf);
-      }else{
-        tail.concat(this.getTail(leaf));
-      }
-    }
-    return tail;
-  }
-
-  private focusOn(prev: ItemData, curr: ItemData): void {
+  private focusOn(prev: TaskId, curr: TaskId): void {
     if (prev) {
-      const prevItem = this.timeline.itemSet.items[prev].data;
-      this.removeHighlightOnItem(prevItem);
+      const prevItem = this.timeline.itemSet.items[prev]?.data;
+      if (prevItem) {
+        this.removeHighlightOnItem(prevItem);
+      }
     }
     if (curr) {
-      const currItem = this.timeline.itemSet.items[curr].data;
+      const task = getTaskById(this.tasks, curr);
+      if (!task) {
+        return;
+      }
+      this.compressTask(task);
+      const sup = getSuperTask(this.tasks, task.id);
+      if (sup) {
+        this.expandtask(sup);
+      }
+
+      const currItem = this.timeline.itemSet.items[curr]?.data;
       this.timeline.focus(curr);
       this.highlightItem(currItem);
     }
   }
 
-  private updateDepGraph(updatedTasks: DependencyChanges): void {
+  private updateDepGraph(
+    updatedTasks: DependencyChanges): void {
     this.updateItems(updatedTasks);
     this.arrowService.updateDependencies(updatedTasks);
   }
@@ -210,14 +211,34 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
       const item = maptoItem(task);
       this.items.add(item);
     }
+
     for (const task of updatedTasks.update) {
-      const item = maptoItem(task);
-      this.items.update(item);
+      if (this.hierarchyService.isExpanded(task.id)) {
+        if (task.subTasks.length === 0) {
+          this.compressTask(task);
+        } else {
+          this.hierarchyService.updateHierarchyEl(task);
+        }
+      } else {
+        const item = maptoItem(task);
+        this.items.update(item);
+      }
     }
+
     for (const task of updatedTasks.remove) {
+      if (this.hierarchyService.isExpanded(task.id)) {
+        this.compressTask(task);
+      }
       const item = maptoItem(task);
       this.items.remove(item);
     }
+  }
+
+  private getVisibleTasks(tasks: Task[]): Task[] {
+    return tasks.filter(t => {
+      const ancestor = getSuperTask(this.tasks, t.id);
+      return !ancestor || this.hierarchyService.isExpanded(ancestor.id);
+    });
   }
 
   private renderTimeline(): void {
@@ -256,9 +277,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     return `
     <div class="tdg-itemDetails">
       <b>&nbsp;&nbsp;${before.name}</b>
-      <svg class="tdg-task-progress-bar">
-        <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
-      </svg>
+      <div class='tdg-task-progress-wrapper'>
+        <svg class="tdg-task-progress-bar">
+          <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
+        </svg>
+        <div class="tdg-expand">${before.expandable ? '<b>+</b>' : ''}</div>
+      </div>
       <small class="tdg-${before.status}">&nbsp;&nbsp;${before.status}</small>
     </div>
     `;

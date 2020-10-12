@@ -5,94 +5,111 @@ $failed-color: red;
 $blocked-color: yellow;
 $highlight-color: rgba($color: #ffff99, $alpha: 0.5);
 
-.vis-item.transeparent{
+.vis-item.transeparent {
   background-color: transparent;
   border: transparent;
-  >div{
-    >*{
+
+  >div {
+    >* {
       margin: 0px;
       padding: 0px;
     }
   }
 }
 
-.vis-item.highlighted{
+.vis-item.highlighted {
   background-color: $highlight-color;
   border-color: $highlight-color;
 }
 
-.tdg-itemDetails{
+.tdg-itemDetails {
   display: flex;
   flex-direction: column;
 }
 
-.tdg-task-progress-bar{
-  stroke:black;
+.tdg-task-progress-bar {
+  stroke: black;
   stroke-width: 1;
   width: 100%;
-  height: 10px;
+  height: 15px;
 }
 
-rect.tdg-unknown{
+rect.tdg-unknown {
   fill: $unknown-color;
 }
 
-small.tdg-unknown{
+small.tdg-unknown {
   color: $unknown-color;
 }
 
-rect.tdg-success{
+rect.tdg-success {
   fill: $success-color;
 }
 
-small.tdg-success{
+small.tdg-success {
   color: $success-color;
 }
 
-rect.tdg-running{
+rect.tdg-running {
   fill: $running-color;
 }
 
-small.tdg-running{
+small.tdg-running {
   color: $running-color;
 }
 
-rect.tdg-failed{
+rect.tdg-failed {
   fill: $failed-color;
 }
 
-small.tdg-failed{
+small.tdg-failed {
   color: $failed-color;
 }
 
-rect.tdg-blocked{
+rect.tdg-blocked {
   fill: $blocked-color;
 }
 
-small.tdg-blocked{
+small.tdg-blocked {
   color: $blocked-color;
 }
 
-rect.tdg-hirerachy{
-  stroke:black;
+rect.tdg-hierarchy {
+  stroke: black;
   stroke-width: 1;
   opacity: 0.1;
 }
 
-.vis-panel.vis-background{
+.vis-panel.vis-background {
   z-index: -4;
 
 }
 
-.vis-panel.vis-center{
+.vis-panel.vis-center {
   z-index: 1;
   pointer-events: auto;
 }
 
-.vis-content{
+.vis-content {
   pointer-events: none;
 }
 
-svg{
+.vis-timeline svg {
   pointer-events: all;
+}
+
+.tdg-task-progress-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .tdg-expand {
+    position: absolute;
+    right: 5px;
+    color: white;
+  }
+}
+
+.tdg-pointer {
+  cursor: pointer;
 }

@@ -1,3 +1,5 @@
+import { PositionService } from './position.service';
+import { HierarchyService } from './hierarchy.service';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -18,6 +20,8 @@ describe('TimelineComponent', () => {
       providers: [
         ArrowService,
         TimeTooltipService,
+        HierarchyService,
+        PositionService,
       ],
     })
       .compileComponents();

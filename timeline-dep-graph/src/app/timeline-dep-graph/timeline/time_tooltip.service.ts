@@ -1,6 +1,7 @@
 import { Timeline } from 'vis';
 
-import { getAbsolutePosition, ItemData } from './../Item';
+import { ItemData } from './../Item';
+import { getAbsolutePosition } from './position.service';
 
 interface Tooltip {
   el: HTMLElement;
