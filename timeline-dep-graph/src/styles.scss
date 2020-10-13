@@ -94,8 +94,39 @@ rect.tdg-hierarchy {
   pointer-events: none;
 }
 
-.vis-timeline svg {
-  pointer-events: all;
+.vis-timeline {
+  svg {
+    pointer-events: all;
+    fill: black;
+    text-decoration: underline;
+    cursor: pointer;
+
+    text {
+      &:hover {
+        fill: blue;
+      }
+
+      &:active {
+        fill: red;
+      }
+    }
+  }
+
+  .tdg-taskName-b {
+    pointer-events: auto;
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: blue;
+    }
+
+    &:active {
+      color: red;
+    }
+  }
+
 }
 
 .tdg-task-progress-wrapper {

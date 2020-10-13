@@ -3,11 +3,16 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
+  Output,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { ReplaySubject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem } from './../Item';
@@ -29,9 +34,10 @@ import { TimeTooltipService } from './time_tooltip.service';
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
-export class TimelineComponent implements AfterViewInit, OnChanges {
+export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   timeline: Timeline;
   private items = new DataSet<ItemData>();
+  private readonly destroyed$ = new ReplaySubject<void>();
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
@@ -70,6 +76,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
    */
   @Input() focusTask?: TaskId;
 
+  @Output() selectedTask = new EventEmitter<TaskId>();
+
+  @Output() hoveredTask = new EventEmitter<TaskId>();
+
   ngAfterViewInit(): void {
     this.renderTimeline();
     this.arrowService.setTimeline(this.timeline);
@@ -78,22 +88,55 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     this.positionService.setTimeline(this.timeline);
     this.positionService.setTasks(this.tasks);
 
-    this.timeline.on('select', (props: { items: string }) => {
-      if (props == null || props.items.length === 0) {
-        return;
-      }
-      const itemId = props.items[0];
-      const task = getTaskById(this.tasks, itemId);
-      if (task) {
-        this.expandtask(task);
-      }
-    });
-    this.hierarchyService.compressTask$.subscribe(itemId => {
-      const task = getTaskById(this.tasks, itemId);
-      if (task) {
-        this.compressTask(task);
-      }
-    });
+    this.timeline.on(
+      'doubleClick', (props: { item: string, event: Event } | undefined) => {
+        if (!props || !props.item) {
+          return;
+        }
+        if (props.event.target instanceof SVGRectElement) {
+          const itemId = props.item;
+          const task = getTaskById(this.tasks, itemId);
+          if (task) {
+            this.expandtask(task);
+          }
+        }
+      });
+
+    this.hierarchyService.compressTask$.pipe(takeUntil(this.destroyed$))
+      .subscribe(itemId => {
+        const task = getTaskById(this.tasks, itemId);
+        if (task) {
+          this.compressTask(task);
+        }
+      });
+
+    this.hierarchyService.hoverOnTask$.pipe(takeUntil(this.destroyed$))
+      .subscribe(itemId => {
+        this.hoveredTask.emit(itemId);
+      });
+
+    this.hierarchyService.selectTask$.pipe(takeUntil(this.destroyed$))
+      .subscribe(itemId => {
+        this.selectedTask.emit(itemId);
+      });
+
+    this.timeline.on(
+      'click', (props: { item: string, event: Event } | undefined) => {
+        if (!props || !props.item) {
+          return;
+        }
+        if (props.event.target instanceof HTMLSpanElement) {
+          this.selectedTask.emit(props.item);
+        }
+      });
+
+    this.timeline.on(
+      'mouseOver', (props: { item: string, event: Event } | undefined) => {
+        if (!props || !props.item) {
+          return;
+        }
+        this.hoveredTask.emit(props.item);
+      });
 
     this.updateDepGraph({
       add: this.tasks,
@@ -125,8 +168,13 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
   private expandtask(task: Task): void {
-    if (this.hierarchyService.isExpanded(task.id)){
+    if (this.hierarchyService.isExpanded(task.id)) {
       return;
     }
     const sup = getSuperTask(this.tasks, task.id);
@@ -276,7 +324,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges {
     before: ItemData, el: HTMLElement, after: ItemData): string {
     return `
     <div class="tdg-itemDetails">
-      <b>&nbsp;&nbsp;${before.name}</b>
+      <b>&nbsp;&nbsp<span class="tdg-taskName-b">${before.name}</span></b>
       <div class='tdg-task-progress-wrapper'>
         <svg class="tdg-task-progress-bar">
           <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
