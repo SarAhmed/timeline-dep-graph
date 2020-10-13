@@ -1,13 +1,13 @@
-import { PositionService } from './position.service';
 import { TestBed } from '@angular/core/testing';
 import { Timeline } from 'vis';
 
 import { Status } from '../Status';
 import { Task } from '../Task';
 import { ArrowService } from './arrow.service';
+import { PositionService } from './position.service';
 
 describe('ArrowService', () => {
-  let service: ArrowService;
+  let arrowService: ArrowService;
   let positionService: PositionService;
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -16,12 +16,12 @@ describe('ArrowService', () => {
         PositionService,
       ]
     });
-    service = TestBed.inject(ArrowService);
+    arrowService = TestBed.inject(ArrowService);
     positionService = TestBed.inject(PositionService);
   });
 
   it('creates the service', () => {
-    expect(service).toBeTruthy();
+    expect(arrowService).toBeTruthy();
   });
 
   it('appends SVG to the timeline dom on setting the timeline', () => {
@@ -29,7 +29,7 @@ describe('ArrowService', () => {
 
     spyOn(document, 'createElementNS').and.callThrough();
 
-    service.setTimeline(mockTimeline);
+    arrowService.setTimeline(mockTimeline);
 
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'svg');
     expect(mockTimeline.dom.center.parentNode.appendChild)
@@ -38,7 +38,7 @@ describe('ArrowService', () => {
 
   it('adds dependency arrow(s)', () => {
     const mockTimeline = createMockTimeline();
-    service.setTimeline(mockTimeline);
+    arrowService.setTimeline(mockTimeline);
 
     const task1: Task = {
       id: '1',
@@ -91,18 +91,19 @@ describe('ArrowService', () => {
     };
 
     spyOn(document, 'createElementNS').and.callThrough();
-    spyOn(positionService, 'getTaskPositionById').and.returnValue({
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      midX: 0,
-      midY: 0,
-      width: 0,
-      height: 0,
-    });
+    positionService.getTaskPositionById = jasmine.createSpy('getTaskPosition')
+      .and.returnValue({
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        midX: 0,
+        midY: 0,
+        width: 0,
+        height: 0,
+      });
 
-    service.updateDependencies(changes);
+    arrowService.updateDependencies(changes);
 
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'path');
     expect(document.createElementNS).toHaveBeenCalledTimes(3);
