@@ -1,25 +1,39 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import { Timeline } from 'vis';
 
 import { Task, TaskId } from '../Task';
 import { AbsolutePosition, addPadding, addTopPadding, PositionService } from './position.service';
 
+type TaskName = SVGTextElement;
+type TaskContainer = SVGRectElement;
+
 interface HierarchyElement {
   taskId: TaskId;
-  rect: SVGRectElement;
-  taskName: SVGTextElement;
+  container: TaskContainer;
+  taskName: TaskName;
 }
 
 @Injectable()
-export class HierarchyService {
+export class HierarchyService implements OnDestroy {
   private svg: SVGSVGElement;
   private timeline: Timeline;
-  private hierarchyMap = new Map<TaskId, HierarchyElement>();
-  private compressTask = new BehaviorSubject<TaskId>('-');
-  compressTask$: Observable<TaskId> = this.compressTask;
+  private readonly hierarchyMap = new Map<TaskId, HierarchyElement>();
+  private readonly compressTask = new ReplaySubject<TaskId>(1);
+  private readonly hoverOnTask = new ReplaySubject<TaskId>(1);
+  private readonly selectTask = new ReplaySubject<TaskId>(1);
+
+  readonly compressTask$: Observable<TaskId> = this.compressTask;
+  readonly hoverOnTask$: Observable<TaskId> = this.hoverOnTask;
+  readonly selectTask$: Observable<TaskId> = this.selectTask;
 
   constructor(private positionService: PositionService) { }
+
+  ngOnDestroy(): void {
+    this.compressTask.complete();
+    this.hoverOnTask.complete();
+    this.selectTask.complete();
+  }
 
   setTimeline(timeline: Timeline): void {
     this.timeline = timeline;
@@ -39,19 +53,34 @@ export class HierarchyService {
       return;
     }
 
-    const rect = this.createRect();
-    rect.classList.add(`tdg-${task.status}`);
-    rect.classList.add('tdg-hierarchy');
-    rect.id = `tdg-expanded-${task.id}`;
-    rect.addEventListener('click', (event: Event) => {
+    const container = this.createContainer();
+    container.classList.add(`tdg-${task.status}`);
+    container.classList.add('tdg-hierarchy');
+    container.classList.add('tdg-pointer');
+    container.id = `tdg-expanded-${task.id}`;
+
+    container.addEventListener('dblclick', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
       const taskId = id.split('tdg-expanded-')[1];
       this.compressTask.next(taskId);
     });
 
-    const taskName = this.createText(`&nbsp;&nbsp;${task.name}`);
+    container.addEventListener('mouseover', (event: Event) => {
+      const id = (event.target as HTMLElement)?.id;
+      const taskId = id.split('tdg-expanded-')[1];
+      this.hoverOnTask.next(taskId);
+    });
 
-    this.hierarchyMap.set(task.id, { taskId: task.id, rect, taskName });
+    const taskName = this.createTaskName(`${task.name}`);
+    taskName.id = `tdg-expanded-task-name-${task.id}`;
+    taskName.addEventListener('click', (event: Event) => {
+      const id = (event.target as HTMLElement)?.id;
+      const taskId = id.split('tdg-expanded-task-name-')[1];
+      this.selectTask.next(taskId);
+    });
+
+    this.hierarchyMap.set(
+      task.id, { taskId: task.id, container, taskName });
   }
 
   removeHierarchyEl(taskId: TaskId): void {
@@ -60,7 +89,7 @@ export class HierarchyService {
       return;
     }
     this.hierarchyMap.delete(taskId);
-    this.svg.removeChild(hierarchyEl.rect);
+    this.svg.removeChild(hierarchyEl.container);
     this.svg.removeChild(hierarchyEl.taskName);
   }
 
@@ -80,7 +109,8 @@ export class HierarchyService {
       if (!boundingBox) {
         continue;
       }
-      setHierarchyCoordinates(hierarchy.rect, hierarchy.taskName, boundingBox);
+      setHierarchyCoordinates(
+        hierarchy.container, hierarchy.taskName, boundingBox);
     }
   }
 
@@ -97,7 +127,7 @@ export class HierarchyService {
     this.timeline.dom.center.parentNode.appendChild(this.svg);
   }
 
-  private createRect(): SVGRectElement {
+  private createContainer(): TaskContainer {
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('rx', '5');
     rect.setAttribute('ry', '5');
@@ -107,7 +137,7 @@ export class HierarchyService {
     return rect;
   }
 
-  private createText(content: string): SVGTextElement {
+  private createTaskName(content: string): TaskName {
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.innerHTML = content;
     text.setAttribute('font-weight', 'bold');
@@ -118,7 +148,7 @@ export class HierarchyService {
   }
 }
 
-function setRectCoordinates(rect: SVGRectElement, bbox: AbsolutePosition)
+function setContainerCoordinates(rect: TaskContainer, bbox: AbsolutePosition)
   : void {
   rect.setAttribute('x', `${bbox.left}`);
   rect.setAttribute('y', `${bbox.top}`);
@@ -127,16 +157,16 @@ function setRectCoordinates(rect: SVGRectElement, bbox: AbsolutePosition)
 }
 
 function setTaskNameCoordinates(
-  taskName: SVGTextElement, bbox: AbsolutePosition): void {
-  taskName.setAttribute('x', `${bbox.left}`);
+  taskName: TaskName, bbox: AbsolutePosition): void {
+  taskName.setAttribute('x', `${bbox.left + 10}`);
   taskName.setAttribute('y', `${bbox.top}`);
 }
 
 function setHierarchyCoordinates(
-  rect: SVGRectElement, taskName: SVGTextElement, bbox: AbsolutePosition)
+  rect: TaskContainer, taskName: TaskName, bbox: AbsolutePosition)
   : void {
   addPadding(bbox, 5);
-  setRectCoordinates(rect, bbox);
+  setContainerCoordinates(rect, bbox);
   addTopPadding(bbox, 5);
   setTaskNameCoordinates(taskName, bbox);
 }
