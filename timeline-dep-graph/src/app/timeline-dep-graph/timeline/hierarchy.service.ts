@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import { Timeline } from 'vis';
 
 import { Task, TaskId } from '../Task';
@@ -18,14 +18,14 @@ interface HierarchyElement {
 export class HierarchyService implements OnDestroy {
   private svg: SVGSVGElement;
   private timeline: Timeline;
-  private hierarchyMap = new Map<TaskId, HierarchyElement>();
-  private compressTask = new BehaviorSubject<TaskId>('-');
-  private hoverOnTask = new BehaviorSubject<TaskId>('-');
-  private selectTask = new BehaviorSubject<TaskId>('-');
+  private readonly hierarchyMap = new Map<TaskId, HierarchyElement>();
+  private readonly compressTask = new ReplaySubject<TaskId>(1);
+  private readonly hoverOnTask = new ReplaySubject<TaskId>(1);
+  private readonly selectTask = new ReplaySubject<TaskId>(1);
 
-  compressTask$: Observable<TaskId> = this.compressTask;
-  hoverOnTask$: Observable<TaskId> = this.hoverOnTask;
-  selectTask$: Observable<TaskId> = this.selectTask;
+  readonly compressTask$: Observable<TaskId> = this.compressTask;
+  readonly hoverOnTask$: Observable<TaskId> = this.hoverOnTask;
+  readonly selectTask$: Observable<TaskId> = this.selectTask;
 
   constructor(private positionService: PositionService) { }
 

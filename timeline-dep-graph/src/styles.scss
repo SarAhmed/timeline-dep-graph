@@ -97,11 +97,12 @@ rect.tdg-hierarchy {
 .vis-timeline {
   svg {
     pointer-events: all;
-    fill: black;
-    text-decoration: underline;
-    cursor: pointer;
 
     text {
+      fill: black;
+      text-decoration: underline;
+      cursor: pointer;
+
       &:hover {
         fill: blue;
       }

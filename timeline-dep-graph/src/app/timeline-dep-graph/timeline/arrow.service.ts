@@ -14,8 +14,10 @@ interface ArrowCoordinates {
 @Injectable()
 export class ArrowService {
   private svg: SVGSVGElement;
-  private outgoingArrowsMap = new Map<TaskId, Map<TaskId, SVGPathElement>>();
-  private incomingArrowsMap = new Map<TaskId, Map<TaskId, SVGPathElement>>();
+  private readonly outgoingArrowsMap =
+    new Map<TaskId, Map<TaskId, SVGPathElement>>();
+  private readonly incomingArrowsMap =
+    new Map<TaskId, Map<TaskId, SVGPathElement>>();
   private timeline: Timeline;
 
   constructor(private positionService: PositionService) { }

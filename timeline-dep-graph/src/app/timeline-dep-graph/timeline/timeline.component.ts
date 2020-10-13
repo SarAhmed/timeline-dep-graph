@@ -42,10 +42,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-              private readonly arrowService: ArrowService,
-              private readonly timeTooltipService: TimeTooltipService,
-              private readonly hierarchyService: HierarchyService,
-              private readonly positionService: PositionService,
+    private readonly arrowService: ArrowService,
+    private readonly timeTooltipService: TimeTooltipService,
+    private readonly hierarchyService: HierarchyService,
+    private readonly positionService: PositionService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -111,14 +111,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
 
     this.hierarchyService.hoverOnTask$.pipe(takeUntil(this.destroyed$))
-      .subscribe(itemId => {
-        this.hoveredTask.emit(itemId);
-      });
+      .subscribe(this.hoveredTask);
 
     this.hierarchyService.selectTask$.pipe(takeUntil(this.destroyed$))
-      .subscribe(itemId => {
-        this.selectedTask.emit(itemId);
-      });
+      .subscribe(this.selectedTask);
 
     this.timeline.on(
       'click', (props: { item: string, event: Event } | undefined) => {
@@ -324,7 +320,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     before: ItemData, el: HTMLElement, after: ItemData): string {
     return `
     <div class="tdg-itemDetails">
-      <b>&nbsp;&nbsp<span class="tdg-taskName-b">${before.name}</span></b>
+    <b>&nbsp;&nbsp<span class="tdg-taskName-b">${before.name}</span></b>
       <div class='tdg-task-progress-wrapper'>
         <svg class="tdg-task-progress-bar">
           <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
