@@ -91,7 +91,7 @@ describe('HierarchyService', () => {
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'text');
   });
 
-  it('do NOT add hierarchy element if the task has atleast one subtask', () => {
+  it('do NOT add hierarchy element if the task has no subtasks', () => {
     const mockTimeline = createMockTimeline();
     hierarchyService.setTimeline(mockTimeline);
 
