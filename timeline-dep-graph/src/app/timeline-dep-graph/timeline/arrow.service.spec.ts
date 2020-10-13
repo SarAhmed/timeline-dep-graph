@@ -91,16 +91,17 @@ describe('ArrowService', () => {
     };
 
     spyOn(document, 'createElementNS').and.callThrough();
-    spyOn(positionService, 'getTaskPositionById').and.returnValue({
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      midX: 0,
-      midY: 0,
-      width: 0,
-      height: 0,
-    });
+    positionService.getTaskPositionById = jasmine.createSpy('getTaskPosition')
+      .and.returnValue({
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        midX: 0,
+        midY: 0,
+        width: 0,
+        height: 0,
+      });
 
     arrowService.updateDependencies(changes);
 

@@ -57,7 +57,6 @@ describe('PositionService', () => {
         }
       }
     };
-    spyOn(service, 'getTaskPosition').and.callThrough();
 
     const pos = service.getTaskPosition(task1);
     expect(pos).toEqual(jasmine.objectContaining(
@@ -113,7 +112,6 @@ describe('PositionService', () => {
         }
       }
     };
-    spyOn(service, 'getTaskPosition').and.callThrough();
 
     const pos = service.getTaskPositionById('1');
     expect(pos).toEqual(jasmine.objectContaining(
@@ -191,8 +189,6 @@ describe('PositionService', () => {
       }
     };
 
-    spyOn(service, 'getTaskPosition').and.callThrough();
-
     const pos = service.getTaskPositionById('1');
     expect(pos).toEqual(jasmine.objectContaining(
       {
@@ -213,8 +209,6 @@ describe('PositionService', () => {
 
     service.setTimeline(mockTimeline);
     service.setTasks([]);
-
-    spyOn(service, 'getTaskPosition').and.callThrough();
 
     const pos = service.getTaskPositionById('abcd');
     expect(pos).toBeUndefined();

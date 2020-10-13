@@ -37,7 +37,7 @@ describe('HierarchyService', () => {
       .toHaveBeenCalledWith(jasmine.any(SVGSVGElement));
   });
 
-  it('add hierarchy element if the task has atleast one subtask', () => {
+  it('adds hierarchy element if the task has atleast one subtask', () => {
     const mockTimeline = createMockTimeline();
     hierarchyService.setTimeline(mockTimeline);
 
@@ -74,16 +74,17 @@ describe('HierarchyService', () => {
     task1.subTasks = [taska, taskb];
 
     spyOn(document, 'createElementNS').and.callThrough();
-    spyOn(positionService, 'getTaskPosition').and.returnValue({
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      midX: 0,
-      midY: 0,
-      width: 0,
-      height: 0,
-    });
+    positionService.getTaskPosition = jasmine.createSpy('getTaskPosition')
+      .and.returnValue({
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        midX: 0,
+        midY: 0,
+        width: 0,
+        height: 0,
+      });
 
     hierarchyService.addHierarchyEl(task1);
 
@@ -91,7 +92,7 @@ describe('HierarchyService', () => {
     expect(document.createElementNS).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'text');
   });
 
-  it('do NOT add hierarchy element if the task has no subtasks', () => {
+  it('does NOT add hierarchy element if the task has no subtasks', () => {
     const mockTimeline = createMockTimeline();
     hierarchyService.setTimeline(mockTimeline);
 
@@ -106,16 +107,17 @@ describe('HierarchyService', () => {
     };
 
     spyOn(document, 'createElementNS').and.callThrough();
-    spyOn(positionService, 'getTaskPosition').and.returnValue({
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      midX: 0,
-      midY: 0,
-      width: 0,
-      height: 0,
-    });
+    positionService.getTaskPosition = jasmine.createSpy('getTaskPosition')
+      .and.returnValue({
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        midX: 0,
+        midY: 0,
+        width: 0,
+        height: 0,
+      });
 
     hierarchyService.addHierarchyEl(task1);
 

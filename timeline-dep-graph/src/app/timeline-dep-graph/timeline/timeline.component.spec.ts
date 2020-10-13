@@ -1,10 +1,10 @@
-import { PositionService } from './position.service';
-import { HierarchyService } from './hierarchy.service';
 import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Status } from '../Status';
 import { ArrowService } from './arrow.service';
+import { HierarchyService } from './hierarchy.service';
+import { PositionService } from './position.service';
 import { TimeTooltipService } from './time_tooltip.service';
 import { TimelineComponent } from './timeline.component';
 
@@ -48,7 +48,7 @@ describe('TimelineComponent', () => {
 
   it('adds Task(s) to the timeline', () => {
     const dataSet = component.timeline.itemsData.getDataSet();
-    spyOn(dataSet, 'add');
+    dataSet.add = jasmine.createSpy('add');
 
     component.tasks = [
       {
@@ -86,7 +86,7 @@ describe('TimelineComponent', () => {
 
   it('removes Task(s) from the timeline', () => {
     const dataSet = component.timeline.itemsData.getDataSet();
-    spyOn(dataSet, 'remove');
+    dataSet.remove = jasmine.createSpy('remove');
 
     const firstValue = component.tasks = [
       {
@@ -166,7 +166,7 @@ describe('TimelineComponent', () => {
 
   it('update Task(s) in the timeline', () => {
     const dataSet = component.timeline.itemsData.getDataSet();
-    spyOn(dataSet, 'update');
+    dataSet.update = jasmine.createSpy('update');
 
     const firstValue = component.tasks = [
       {
@@ -246,9 +246,9 @@ describe('TimelineComponent', () => {
 
   it('add & remove & update Task(s) in the timeline', () => {
     const dataSet = component.timeline.itemsData.getDataSet();
-    spyOn(dataSet, 'add');
-    spyOn(dataSet, 'remove');
-    spyOn(dataSet, 'update');
+    dataSet.add = jasmine.createSpy('add');
+    dataSet.remove = jasmine.createSpy('remove');
+    dataSet.update = jasmine.createSpy('update');
 
     const firstValue = component.tasks = [
       {
@@ -378,7 +378,7 @@ describe('TimelineComponent', () => {
     });
     fixture.detectChanges();
 
-    spyOn(component.timeline, 'focus');
+    component.timeline.focus = jasmine.createSpy('focus');
     component.ngOnChanges({
       focusTask: new SimpleChange(null, '3', true)
     });
@@ -425,7 +425,7 @@ describe('TimelineComponent', () => {
     });
     fixture.detectChanges();
 
-    spyOn(component.timeline, 'focus');
+    component.timeline.focus = jasmine.createSpy('focus');
     component.ngOnChanges({
       focusTask: new SimpleChange('3', null, true)
     });
