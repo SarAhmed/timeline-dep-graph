@@ -11,4 +11,11 @@
   <button class="moveRight" mat-mini-fab aria-label="Move Right" (click)="moveRight()">
     <mat-icon>keyboard_arrow_right</mat-icon>
   </button>
+
+  <button class="group" mat-mini-fab aria-label="Group Tasks" (click)="groupTasks()">
+    <mat-icon *ngIf="!grouped; else ungroup"> view_list</mat-icon>
+    <ng-template #ungroup>
+      <mat-icon>timeline</mat-icon>
+    </ng-template>
+  </button>
 </div>
