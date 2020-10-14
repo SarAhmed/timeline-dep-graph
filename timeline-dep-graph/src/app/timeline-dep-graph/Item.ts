@@ -43,7 +43,7 @@ export function maptoItem(task: Task, isGrouped: boolean): ItemData {
  */
 export function setItemsGroups(
   items: { [id: string]: { data: ItemData }; }, isGrouped: boolean): void {
-  for (const [_, item] of Object.entries(items).values()) {
+  for (const item of Object.values(items)) {
     item.data.group = isGrouped ? item.data.status : 'unGrouped';
   }
 }
