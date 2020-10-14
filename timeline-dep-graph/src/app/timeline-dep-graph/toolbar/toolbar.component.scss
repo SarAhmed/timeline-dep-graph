@@ -1,5 +1,13 @@
 .tdg-toolbar-container {
-  > button {
+  display: flex;
+  > button:not(.group) {
     margin: 5px;
   }
+}
+
+.group{
+  margin-left: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 5px;
 }

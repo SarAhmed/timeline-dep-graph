@@ -15,7 +15,7 @@ import { ReplaySubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
-import { ItemData, maptoItem } from './../Item';
+import { ItemData, maptoItem, setItemsGroups } from './../Item';
 import { getSuperTask, getTaskById, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
@@ -38,6 +38,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   timeline: Timeline;
   private items = new DataSet<ItemData>();
   private readonly destroyed$ = new ReplaySubject<void>();
+  private isGrouped = false;
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
@@ -164,6 +165,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
+  setIsGrouped(grouped: boolean): void {
+    this.isGrouped = grouped;
+    setItemsGroups(this.timeline.itemSet.items, this.isGrouped);
+  }
+
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
@@ -252,8 +258,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private updateItems(updatedTasks: DependencyChanges): void {
     for (const task of updatedTasks.add) {
-      const item = maptoItem(task);
-      this.items.add(item);
+      const item = maptoItem(task, this.isGrouped);
+      this.items.add(item, this.isGrouped);
     }
 
     for (const task of updatedTasks.update) {
@@ -264,7 +270,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
           this.hierarchyService.updateHierarchyEl(task);
         }
       } else {
-        const item = maptoItem(task);
+        const item = maptoItem(task, this.isGrouped);
         this.items.update(item);
       }
     }
@@ -273,7 +279,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (this.hierarchyService.isExpanded(task.id)) {
         this.compressTask(task);
       }
-      const item = maptoItem(task);
+      const item = maptoItem(task, this.isGrouped);
       this.items.remove(item);
     }
   }
@@ -304,6 +310,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       start: timelineStart.getTime(),
       template: this.generateItemTemplate,
       order: (a: ItemData, b: ItemData) => a.id.localeCompare(b.id),
+      margin: {
+        item: 15,
+      },
+      orientation: 'both',
     };
 
     if (this.width != null) {

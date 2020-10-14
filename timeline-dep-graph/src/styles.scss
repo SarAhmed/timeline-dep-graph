@@ -145,3 +145,7 @@ rect.tdg-hierarchy {
 .tdg-pointer {
   cursor: pointer;
 }
+
+.vis-foreground .vis-group:nth-child(odd) {
+  border-bottom: 1px solid transparent;
+}
