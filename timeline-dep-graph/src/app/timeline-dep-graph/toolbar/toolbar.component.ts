@@ -63,6 +63,10 @@ export class ToolbarComponent implements OnChanges {
     this.move(-MOTION_RATIO);
   }
 
+  fit(): void {
+    this.timeline.fit();
+  }
+
   groupTasks(): void {
     this.grouped = !this.grouped;
     this.groupedTimeline.emit(this.grouped);

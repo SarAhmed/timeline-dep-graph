@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -59,10 +58,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-    private readonly arrowService: ArrowService,
-    private readonly timeTooltipService: TimeTooltipService,
-    private readonly hierarchyService: HierarchyService,
-    private readonly positionService: PositionService,
+              private readonly arrowService: ArrowService,
+              private readonly timeTooltipService: TimeTooltipService,
+              private readonly hierarchyService: HierarchyService,
+              private readonly positionService: PositionService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -251,7 +250,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
     if (curr) {
       const task = getTaskById(this.tasks, curr);
-      if (!task) {
+      if (!task || !task.startTime || !task.finishTime) {
         return;
       }
       this.compressTask(task);
@@ -262,6 +261,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
       const currItem = this.timeline.itemSet.items[curr]?.data;
       this.timeline.focus(curr);
+
+      /*
+       * Set the timeline visible window's start time to
+       * 5 seconds before the task start time,
+       * and the end time to 5 seconds after the task finish time.
+       */
+      this.timeline.setWindow(
+        new Date(task.startTime.getTime() - (1000 * 5)),
+        new Date(task.finishTime.getTime() + (1000 * 5)));
+
       this.highlightItem(currItem);
     }
   }

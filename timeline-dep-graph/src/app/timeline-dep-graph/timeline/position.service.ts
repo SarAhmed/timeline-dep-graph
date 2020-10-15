@@ -175,3 +175,18 @@ export function getAbsolutePosition(
     height: rPos.height
   };
 }
+
+/**
+ * Check if the given absolute position is valid or not.
+ * Where every field in the given position holds a valid value.
+ * @param position Absolute position.
+ * @return Whether the position is valid or not.
+ */
+export function isValidAbsolutePosition(position: AbsolutePosition): boolean {
+  for (const val of Object.values(position)) {
+    if (!val) {
+      return false;
+    }
+  }
+  return true;
+}
