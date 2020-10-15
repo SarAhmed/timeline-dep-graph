@@ -235,7 +235,7 @@ export class ArrowService {
 
 function setArrowCoordinates(
   arrow: SVGPathElement, start: AbsolutePosition, end: AbsolutePosition): void {
-  if (!isValidAbsolutePosition(start) || !isValidAbsolutePosition(start)) {
+  if (!isValidAbsolutePosition(start) || !isValidAbsolutePosition(end)) {
     return;
   }
   const bezierCurve = Math.min(start.height, end.height);

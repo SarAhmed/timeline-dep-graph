@@ -60,7 +60,7 @@ export class PositionService {
 
   getTaskPosition(task: Task): AbsolutePosition | undefined {
     const item: RelativePosition = this.timeline.itemSet.items[task.id];
-    if (item) {
+    if (item && item.parent) {
       const timelineHeight = this.timeline.dom.center.offsetHeight;
       const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
       return getAbsolutePosition(item, timelineHeight, svgHeight);
@@ -184,7 +184,7 @@ export function getAbsolutePosition(
  */
 export function isValidAbsolutePosition(position: AbsolutePosition): boolean {
   for (const val of Object.values(position)) {
-    if (!val) {
+    if (!val || isNaN(val)) {
       return false;
     }
   }

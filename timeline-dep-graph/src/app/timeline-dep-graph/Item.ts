@@ -63,3 +63,16 @@ export function setItemsGroups(
     item.data.group = isGrouped ? item.data.status : 'unGrouped';
   }
 }
+
+/**
+ * @param items Dicrtionary represnting the timeline's items.
+ * @return Set containing used statuses.
+ */
+export function getUsedStatusSet(
+  items: { [id: string]: { data: ItemData }; }): Set<Status> {
+  const groupSet = new Set<Status>();
+  for (const item of Object.values(items)) {
+    groupSet.add(item.data.status);
+  }
+  return groupSet;
+}

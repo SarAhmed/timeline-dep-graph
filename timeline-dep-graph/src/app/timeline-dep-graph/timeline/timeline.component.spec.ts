@@ -394,12 +394,12 @@ describe('TimelineComponent', () => {
     });
     fixture.detectChanges();
 
-    component.timeline.focus = jasmine.createSpy('focus');
+    component.timeline.setWindow = jasmine.createSpy('setWindow');
     component.ngOnChanges({
       focusTask: new SimpleChange(null, '3', true)
     });
     fixture.detectChanges();
-    expect(component.timeline.focus).toHaveBeenCalledWith('3');
+    expect(component.timeline.setWindow).toHaveBeenCalled();
   });
 
   it('remove focus from Task in the timeline', () => {
