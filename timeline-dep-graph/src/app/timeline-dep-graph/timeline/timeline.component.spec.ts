@@ -93,10 +93,10 @@ describe('TimelineComponent', () => {
     fixture.detectChanges();
 
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '1' })
+      jasmine.objectContaining({ id: '1' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '2' })
+      jasmine.objectContaining({ id: '2' }), false
     );
   });
 
@@ -335,16 +335,16 @@ describe('TimelineComponent', () => {
     fixture.detectChanges();
 
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '1' })
+      jasmine.objectContaining({ id: '1' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '2' })
+      jasmine.objectContaining({ id: '2' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '3' })
+      jasmine.objectContaining({ id: '3' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '0' })
+      jasmine.objectContaining({ id: '0' }), false
     );
     expect(dataSet.add).toHaveBeenCalledTimes(4);
 
