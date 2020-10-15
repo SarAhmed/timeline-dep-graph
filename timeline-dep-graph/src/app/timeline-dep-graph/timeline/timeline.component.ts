@@ -35,6 +35,7 @@ import { ItemData, maptoItem, setItemsGroups } from './../Item';
 import { getSuperTask, getTaskById, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
+import { GroupingService } from './grouping.service';
 import { HierarchyService } from './hierarchy.service';
 import { PositionService } from './position.service';
 import { TimeTooltipService } from './time_tooltip.service';
@@ -46,23 +47,25 @@ import { TimeTooltipService } from './time_tooltip.service';
     TimeTooltipService,
     HierarchyService,
     PositionService,
+    GroupingService,
   ],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   timeline: Timeline;
-  private items = new DataSet<ItemData>();
+  private readonly items = new DataSet<ItemData>();
   private readonly destroyed$ = new ReplaySubject<void>();
   private isGrouped = false;
 
   @ViewChild('timelineVis', { static: true }) timelineVis: ElementRef;
 
   constructor(private readonly cdRef: ChangeDetectorRef,
-    private readonly arrowService: ArrowService,
-    private readonly timeTooltipService: TimeTooltipService,
-    private readonly hierarchyService: HierarchyService,
-    private readonly positionService: PositionService,
+              private readonly arrowService: ArrowService,
+              private readonly timeTooltipService: TimeTooltipService,
+              private readonly hierarchyService: HierarchyService,
+              private readonly positionService: PositionService,
+              private readonly groupingService: GroupingService,
   ) { }
 
   @Input() tasks: Task[] = [];
@@ -104,6 +107,13 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.hierarchyService.setTimeline(this.timeline);
     this.positionService.setTimeline(this.timeline);
     this.positionService.setTasks(this.tasks);
+    this.groupingService.setTimeline(this.timeline);
+
+    this.updateDepGraph({
+      add: this.tasks,
+      remove: [],
+      update: []
+    });
 
     this.timeline.on(
       'doubleClick', (props: { item: string, event: Event } | undefined) => {
@@ -150,12 +160,6 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
         this.hoveredTask.emit(props.item);
       });
-
-    this.updateDepGraph({
-      add: this.tasks,
-      remove: [],
-      update: []
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -184,6 +188,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   setIsGrouped(grouped: boolean): void {
     this.isGrouped = grouped;
     setItemsGroups(this.timeline.itemSet.items, this.isGrouped);
+    if (this.isGrouped) {
+      this.groupingService.groupTasks();
+    } else {
+      this.groupingService.unGroupTasks();
+    }
   }
 
   ngOnDestroy(): void {
@@ -251,7 +260,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
     if (curr) {
       const task = getTaskById(this.tasks, curr);
-      if (!task) {
+      if (!task || !task.startTime || !task.finishTime) {
         return;
       }
       this.compressTask(task);
@@ -261,7 +270,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
 
       const currItem = this.timeline.itemSet.items[curr]?.data;
-      this.timeline.focus(curr);
+
+      /*
+       * Set the timeline visible window's start time to
+       * 5 seconds before the task start time,
+       * and the end time to 5 seconds after the task finish time.
+       */
+      this.timeline.setWindow(
+        new Date(task.startTime.getTime() - (1000 * 5)),
+        new Date(task.finishTime.getTime() + (1000 * 5)));
+
       this.highlightItem(currItem);
     }
   }
@@ -273,6 +291,9 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private updateItems(updatedTasks: DependencyChanges): void {
+    this.groupingService.addGroups(
+      [...updatedTasks.add, ...updatedTasks.update]);
+
     for (const task of updatedTasks.add) {
       const item = maptoItem(task, this.isGrouped);
       this.items.add(item, this.isGrouped);

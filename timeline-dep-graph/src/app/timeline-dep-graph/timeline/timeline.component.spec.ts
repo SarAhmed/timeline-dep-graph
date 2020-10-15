@@ -93,10 +93,10 @@ describe('TimelineComponent', () => {
     fixture.detectChanges();
 
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '1' })
+      jasmine.objectContaining({ id: '1' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '2' })
+      jasmine.objectContaining({ id: '2' }), false
     );
   });
 
@@ -335,16 +335,16 @@ describe('TimelineComponent', () => {
     fixture.detectChanges();
 
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '1' })
+      jasmine.objectContaining({ id: '1' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '2' })
+      jasmine.objectContaining({ id: '2' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '3' })
+      jasmine.objectContaining({ id: '3' }), false
     );
     expect(dataSet.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({ id: '0' })
+      jasmine.objectContaining({ id: '0' }), false
     );
     expect(dataSet.add).toHaveBeenCalledTimes(4);
 
@@ -394,12 +394,12 @@ describe('TimelineComponent', () => {
     });
     fixture.detectChanges();
 
-    component.timeline.focus = jasmine.createSpy('focus');
+    component.timeline.setWindow = jasmine.createSpy('setWindow');
     component.ngOnChanges({
       focusTask: new SimpleChange(null, '3', true)
     });
     fixture.detectChanges();
-    expect(component.timeline.focus).toHaveBeenCalledWith('3');
+    expect(component.timeline.setWindow).toHaveBeenCalled();
   });
 
   it('remove focus from Task in the timeline', () => {

@@ -60,7 +60,7 @@ export class PositionService {
 
   getTaskPosition(task: Task): AbsolutePosition | undefined {
     const item: RelativePosition = this.timeline.itemSet.items[task.id];
-    if (item) {
+    if (item && item.parent) {
       const timelineHeight = this.timeline.dom.center.offsetHeight;
       const svgHeight = this.timeline.dom.center.parentNode.offsetHeight - 2;
       return getAbsolutePosition(item, timelineHeight, svgHeight);
@@ -174,4 +174,19 @@ export function getAbsolutePosition(
     width: rPos.width,
     height: rPos.height
   };
+}
+
+/**
+ * Check if the given absolute position is valid or not.
+ * Where every field in the given position holds a valid value.
+ * @param position Absolute position.
+ * @return Whether the position is valid or not.
+ */
+export function isValidAbsolutePosition(position: AbsolutePosition): boolean {
+  for (const val of Object.values(position)) {
+    if (val == null || isNaN(val)) {
+      return false;
+    }
+  }
+  return true;
 }

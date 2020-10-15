@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-$button-background-color: transparent;
-$button-border-color: #bfbfbf;
+import { TestBed } from '@angular/core/testing';
 
-.tdg-toolbar-container {
-  display: flex;
+import { GroupingService } from './grouping.service';
 
-  button {
-    margin: 5px;
-    background-color: $button-background-color;
-    border: 1px solid $button-border-color;
-  }
-}
+describe('GroupingService', () => {
+  let service: GroupingService;
 
-.controller {
-  margin-left: auto;
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        GroupingService,
+      ]
+    });
+    service = TestBed.inject(GroupingService);
+  });
 
-  button {
-    margin: 5px;
-  }
-}
+  it('creates service', () => {
+    expect(service).toBeTruthy();
+  });
+});

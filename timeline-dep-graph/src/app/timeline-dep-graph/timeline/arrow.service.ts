@@ -20,7 +20,7 @@ import { Timeline } from 'vis';
 import { Task } from '../Task';
 import { TaskId } from './../Task';
 import { DependencyChanges } from './dependency_changes_lib.';
-import { AbsolutePosition, PositionService } from './position.service';
+import { AbsolutePosition, isValidAbsolutePosition, PositionService } from './position.service';
 
 interface ArrowCoordinates {
   start: AbsolutePosition;
@@ -235,6 +235,9 @@ export class ArrowService {
 
 function setArrowCoordinates(
   arrow: SVGPathElement, start: AbsolutePosition, end: AbsolutePosition): void {
+  if (!isValidAbsolutePosition(start) || !isValidAbsolutePosition(end)) {
+    return;
+  }
   const bezierCurve = Math.min(start.height, end.height);
   arrow.setAttribute('marker-end', 'url(#arrowhead)');
   arrow.setAttribute(

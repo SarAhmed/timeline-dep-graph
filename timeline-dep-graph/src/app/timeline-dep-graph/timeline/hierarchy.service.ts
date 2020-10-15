@@ -15,11 +15,11 @@
  */
 
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { Timeline } from 'vis';
 
 import { Task, TaskId } from '../Task';
-import { AbsolutePosition, addPadding, addTopPadding, PositionService } from './position.service';
+import { AbsolutePosition, addPadding, addTopPadding, isValidAbsolutePosition, PositionService } from './position.service';
 
 type TaskName = SVGTextElement;
 type TaskContainer = SVGRectElement;
@@ -166,6 +166,9 @@ export class HierarchyService implements OnDestroy {
 
 function setContainerCoordinates(rect: TaskContainer, bbox: AbsolutePosition)
   : void {
+  if (!isValidAbsolutePosition(bbox)) {
+    return;
+  }
   rect.setAttribute('x', `${bbox.left}`);
   rect.setAttribute('y', `${bbox.top}`);
   rect.setAttribute('width', `${bbox.width}`);
@@ -174,6 +177,9 @@ function setContainerCoordinates(rect: TaskContainer, bbox: AbsolutePosition)
 
 function setTaskNameCoordinates(
   taskName: TaskName, bbox: AbsolutePosition): void {
+  if (!isValidAbsolutePosition(bbox)) {
+    return;
+  }
   taskName.setAttribute('x', `${bbox.left + 10}`);
   taskName.setAttribute('y', `${bbox.top}`);
 }
@@ -181,6 +187,9 @@ function setTaskNameCoordinates(
 function setHierarchyCoordinates(
   rect: TaskContainer, taskName: TaskName, bbox: AbsolutePosition)
   : void {
+  if (!isValidAbsolutePosition(bbox)) {
+    return;
+  }
   addPadding(bbox, 5);
   setContainerCoordinates(rect, bbox);
   addTopPadding(bbox, 5);
