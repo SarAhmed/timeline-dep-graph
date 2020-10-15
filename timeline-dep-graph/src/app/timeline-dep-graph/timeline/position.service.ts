@@ -184,7 +184,7 @@ export function getAbsolutePosition(
  */
 export function isValidAbsolutePosition(position: AbsolutePosition): boolean {
   for (const val of Object.values(position)) {
-    if (!val || isNaN(val)) {
+    if (val == null || isNaN(val)) {
       return false;
     }
   }
