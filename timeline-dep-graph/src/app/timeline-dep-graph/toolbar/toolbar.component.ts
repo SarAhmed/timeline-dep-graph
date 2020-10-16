@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { earliestItem, ItemData, latestItem } from './../Item';
+import { earliestItem, ItemData, latestItem } from '../Item';
 
 const ZOOM_RATIO = 0.2;
 const MOTION_RATIO = 0.2;
@@ -27,7 +27,7 @@ const MOTION_RATIO = 0.2;
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnChanges {
 
   grouped = false;
   rollingMode = false;
@@ -37,6 +37,36 @@ export class ToolbarComponent {
   @Output() groupedTimeline = new EventEmitter<boolean>();
 
   constructor() { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.timeline) {
+      return;
+    }
+    if (changes.timeline) {
+      const prev = changes.timeline.previousValue;
+      const curr = changes.timeline.currentValue;
+      if (!prev && curr) {
+        curr.on('currentTimeTick', () => {
+          if (this.rollingMode) {
+            const range = this.timeline.getWindow();
+            const interval = range.end - range.start;
+
+            let newEnd = new Date().getTime();
+            let newStart = newEnd - interval;
+
+            newStart += interval * MOTION_RATIO;
+            newEnd += interval * MOTION_RATIO;
+
+            this.timeline.setWindow({
+              start: new Date(newStart),
+              end: new Date(newEnd),
+              animation: false,
+            });
+          }
+        });
+      }
+    }
+  }
 
   zoomIn(): void {
     this.timeline.zoomIn(ZOOM_RATIO, { animation: !this.rollingMode });
@@ -75,24 +105,6 @@ export class ToolbarComponent {
 
   toggleRolling(): void {
     this.rollingMode = !this.rollingMode;
-    this.timeline.on('currentTimeTick', () => {
-      if (this.rollingMode) {
-        const range = this.timeline.getWindow();
-        const interval = range.end - range.start;
-
-        let newEnd = new Date().getTime();
-        let newStart = newEnd - interval;
-
-        newStart += interval * MOTION_RATIO;
-        newEnd += interval * MOTION_RATIO;
-
-        this.timeline.setWindow({
-          start: new Date(newStart),
-          end: new Date(newEnd),
-          animation: false,
-        });
-      }
-    });
   }
 
   private focusOnItem(item: ItemData): void {

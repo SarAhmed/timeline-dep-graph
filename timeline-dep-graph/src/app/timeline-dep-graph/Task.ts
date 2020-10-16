@@ -155,6 +155,40 @@ export function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {
   return true;
 }
 
+/**
+ * Filter the tasks array to get the task(s) that started before the given time.
+ * And set the finish time of the unfinished tasks to be the given time.
+ * @param tasks Array of tasks to be filtered.
+ * @param currTime The time based on the filtering will be done.
+ */
+export function patchAndFilterTasks(tasks: Task[], currTime: Date): Task[] {
+  const filtered: Task[] = [];
+  for (const task of tasks) {
+    if (!task.startTime || task.startTime.getTime() >= currTime.getTime()) {
+      continue;
+    }
+    const clonedTask = cloneTask(task);
+    if (!clonedTask.finishTime) {
+      clonedTask.finishTime = currTime;
+    }
+    clonedTask.subTasks = patchAndFilterTasks(clonedTask.subTasks, currTime);
+    filtered.push(clonedTask);
+  }
+  return filtered;
+}
+
+function cloneTask(task: Task): Task {
+  return {
+    id: task.id,
+    name: task.name,
+    status: task.status,
+    dependants: task.dependants,
+    startTime: task.startTime,
+    finishTime: task.finishTime,
+    subTasks: task.subTasks,
+  };
+}
+
 function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
   for (const dep of curr.dependants) {
     if (!visisted.has(dep.id)) {

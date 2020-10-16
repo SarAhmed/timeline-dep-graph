@@ -87,9 +87,8 @@ export function getUsedStatusSet(
  * @return The item that has the smallest start time.
  */
 export function earliestItem(itemSet: ItemSet)
-: ItemData{
-  const items = Object.values(itemSet)
-    .filter(t => !!t.data.start && !!t.data.end);
+  : ItemData {
+  const items = Object.values(itemSet);
   return items.reduce(
     (a, b) => a.data.start!.getTime() < b.data.end!.getTime() ? a : b
   ).data;
@@ -101,9 +100,8 @@ export function earliestItem(itemSet: ItemSet)
  * @return The item that has the greatest end time.
  */
 export function latestItem(itemSet: ItemSet)
-: ItemData{
-  const items = Object.values(itemSet)
-    .filter(t => !!t.data.start && !!t.data.end);
+  : ItemData {
+  const items = Object.values(itemSet);
   return items.reduce(
     (a, b) => a.data.end!.getTime() > b.data.end!.getTime() ? a : b
   ).data;

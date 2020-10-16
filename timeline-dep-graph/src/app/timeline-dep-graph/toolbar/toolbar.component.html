@@ -57,7 +57,7 @@
     </div>
 
     <div class="time">
-      <button [ngClass]="rollingMode ? 'rolling' : 'rollTimeline'" mat-flat-button aria-label="Rolling Mode"
+      <button [class.rolling]="rollingMode" mat-flat-button aria-label="Rolling Mode"
         (click)="toggleRolling()">
         <mat-icon>access_time</mat-icon>
       </button>
