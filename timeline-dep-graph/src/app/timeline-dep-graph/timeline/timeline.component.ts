@@ -251,7 +251,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.hierarchyService.removeHierarchyEl(task.id);
   }
 
-  private focusOn(prev: TaskId, curr: TaskId): void {
+  private focusOn(prev: TaskId | undefined, curr: TaskId| undefined): void {
     if (prev) {
       const prevItem = this.timeline.itemSet.items[prev]?.data;
       if (prevItem) {

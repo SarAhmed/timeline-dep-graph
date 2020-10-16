@@ -17,6 +17,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Timeline } from 'vis';
 
+import { earliestItem, ItemData, latestItem } from './../Item';
+
 const ZOOM_RATIO = 0.2;
 const MOTION_RATIO = 0.2;
 
@@ -58,6 +60,31 @@ export class ToolbarComponent {
   groupTasks(): void {
     this.grouped = !this.grouped;
     this.groupedTimeline.emit(this.grouped);
+  }
+
+  focusEarliest(): void {
+    const item = earliestItem(this.timeline.itemSet.items);
+    this.focusOnItem(item);
+  }
+
+  focusLatest(): void {
+    const item = latestItem(this.timeline.itemSet.items);
+    this.focusOnItem(item);
+  }
+
+  private focusOnItem(item: ItemData): void {
+    if (!item.start || !item.end) {
+      return;
+    }
+    /*
+     * Set the timeline visible window's start time to
+     * 5 seconds before the task start time,
+     * and the end time to 5 seconds after the task finish time.
+     */
+    this.timeline.setWindow({
+      start: new Date(item.start.getTime() - (1000 * 5)),
+      end: new Date(item.end.getTime() + (1000 * 5))
+    });
   }
 
   private move(percentage): void {

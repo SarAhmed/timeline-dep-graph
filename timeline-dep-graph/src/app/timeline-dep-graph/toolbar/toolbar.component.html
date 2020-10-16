@@ -22,11 +22,17 @@
     <button class="zoomOut" mat-flat-button aria-label="Zoom Out" (click)="zoomOut()">
       <mat-icon>zoom_out</mat-icon>
     </button>
+    <button class="focusEarliest" mat-flat-button aria-label="Earliest Task" (click)="focusEarliest()">
+      <mat-icon>first_page</mat-icon>
+    </button>
     <button class="moveLeft" mat-flat-button aria-label="Move Left" (click)="moveLeft()">
       <mat-icon>keyboard_arrow_left</mat-icon>
     </button>
     <button class="moveRight" mat-flat-button aria-label="Move Right" (click)="moveRight()">
       <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+    <button class="focusLatest" mat-flat-button aria-label="Latest Task" (click)="focusLatest()">
+      <mat-icon>last_page</mat-icon>
     </button>
   </div>
 

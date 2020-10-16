@@ -29,13 +29,13 @@ interface Group {
 
 @Injectable()
 export class GroupingService {
-
   private timeline: Timeline;
   private isGrouped = false;
   private statusSet = new Set<Status>();
 
   setTimeline(timeline: Timeline): void {
     this.timeline = timeline;
+    this.unGroupTasks();
     this.timeline.on('changed', () => {
       const changes = getUsedStatusSet(this.timeline.itemSet.items);
       if (isEqualSet(changes, this.statusSet)) {

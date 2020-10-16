@@ -30,6 +30,10 @@ export interface ItemData {
   group: string;
 }
 
+interface ItemSet {
+  [id: string]: { data: ItemData };
+}
+
 /**
  * @param task The task to be mapped into a vis-item.
  * @param isGrouped Whether the timeline's items are grouped by status or not.
@@ -58,7 +62,7 @@ export function maptoItem(task: Task, isGrouped: boolean): ItemData {
  * @param isGrouped Whether the timeline's items are grouped by status or not.
  */
 export function setItemsGroups(
-  items: { [id: string]: { data: ItemData }; }, isGrouped: boolean): void {
+  items: ItemSet, isGrouped: boolean): void {
   for (const item of Object.values(items)) {
     item.data.group = isGrouped ? item.data.status : 'unGrouped';
   }
@@ -69,10 +73,38 @@ export function setItemsGroups(
  * @return Set containing used statuses.
  */
 export function getUsedStatusSet(
-  items: { [id: string]: { data: ItemData }; }): Set<Status> {
+  items: ItemSet): Set<Status> {
   const groupSet = new Set<Status>();
   for (const item of Object.values(items)) {
     groupSet.add(item.data.status);
   }
   return groupSet;
+}
+
+/**
+ * Get the earliest item from the given item-set.
+ * @param items Dicrtionary represnting the timeline's items.
+ * @return The item that has the smallest start time.
+ */
+export function earliestItem(itemSet: ItemSet)
+: ItemData{
+  const items = Object.values(itemSet)
+    .filter(t => !!t.data.start && !!t.data.end);
+  return items.reduce(
+    (a, b) => a.data.start!.getTime() < b.data.end!.getTime() ? a : b
+  ).data;
+}
+
+/**
+ * Get the latest item from the given item-set.
+ * @param items Dicrtionary represnting the timeline's items.
+ * @return The item that has the greatest end time.
+ */
+export function latestItem(itemSet: ItemSet)
+: ItemData{
+  const items = Object.values(itemSet)
+    .filter(t => !!t.data.start && !!t.data.end);
+  return items.reduce(
+    (a, b) => a.data.end!.getTime() > b.data.end!.getTime() ? a : b
+  ).data;
 }
