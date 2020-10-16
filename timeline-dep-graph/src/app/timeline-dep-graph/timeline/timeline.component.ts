@@ -28,11 +28,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem, setItemsGroups } from './../Item';
-import { getSuperTask, getTaskById, Task, TaskId, patchAndFilterTasks } from './../Task';
+import { getSuperTask, getTaskById, patchAndFilterTasks, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
 import { GroupingService } from './grouping.service';
@@ -172,6 +172,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
           this.filteredTasks, newFilteredTasks);
 
         this.filteredTasks = newFilteredTasks;
+        this.positionService.setTasks(this.filteredTasks);
+
         updatedTasks.add = this.getVisibleTasks(updatedTasks.add);
         updatedTasks.remove = this.getVisibleTasks(updatedTasks.remove);
         updatedTasks.update = this.getVisibleTasks(updatedTasks.update);
