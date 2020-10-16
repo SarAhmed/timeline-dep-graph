@@ -26,7 +26,8 @@
     </div>
 
     <div class="navigation">
-      <button class="focusEarliest" mat-flat-button aria-label="Earliest Task" [disabled]="rollingMode" (click)="focusEarliest()">
+      <button class="focusEarliest" mat-flat-button aria-label="Earliest Task" [disabled]="rollingMode"
+        (click)="focusEarliest()">
         <mat-icon>first_page</mat-icon>
       </button>
       <button class="moveLeft" mat-flat-button aria-label="Move Left" [disabled]="rollingMode" (click)="moveLeft()">
@@ -35,7 +36,8 @@
       <button class="moveRight" mat-flat-button aria-label="Move Right" [disabled]="rollingMode" (click)="moveRight()">
         <mat-icon>keyboard_arrow_right</mat-icon>
       </button>
-      <button class="focusLatest" mat-flat-button aria-label="Latest Task" [disabled]="rollingMode" (click)="focusLatest()">
+      <button class="focusLatest" mat-flat-button aria-label="Latest Task" [disabled]="rollingMode"
+        (click)="focusLatest()">
         <mat-icon>last_page</mat-icon>
       </button>
     </div>
@@ -53,9 +55,10 @@
         </ng-template>
       </button>
     </div>
-  
+
     <div class="time">
-      <button [ngClass]="rollingMode ? 'rolling' : 'rollTimeline'" mat-flat-button aria-label="Rolling Mode" (click)="toggleRolling()">
+      <button [ngClass]="rollingMode ? 'rolling' : 'rollTimeline'" mat-flat-button aria-label="Rolling Mode"
+        (click)="toggleRolling()">
         <mat-icon>access_time</mat-icon>
       </button>
     </div>
