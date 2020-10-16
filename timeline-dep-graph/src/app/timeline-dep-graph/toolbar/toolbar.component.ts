@@ -30,6 +30,7 @@ const MOTION_RATIO = 0.2;
 export class ToolbarComponent {
 
   grouped = false;
+  rollingMode = false;
 
   @Input() timeline: Timeline;
 
@@ -38,11 +39,11 @@ export class ToolbarComponent {
   constructor() { }
 
   zoomIn(): void {
-    this.timeline.zoomIn(ZOOM_RATIO);
+    this.timeline.zoomIn(ZOOM_RATIO, { animation: !this.rollingMode });
   }
 
   zoomOut(): void {
-    this.timeline.zoomOut(ZOOM_RATIO);
+    this.timeline.zoomOut(ZOOM_RATIO, { animation: !this.rollingMode });
   }
 
   moveLeft(): void {
@@ -70,6 +71,28 @@ export class ToolbarComponent {
   focusLatest(): void {
     const item = latestItem(this.timeline.itemSet.items);
     this.focusOnItem(item);
+  }
+
+  toggleRolling(): void {
+    this.rollingMode = !this.rollingMode;
+    this.timeline.on('currentTimeTick', () => {
+      if (this.rollingMode) {
+        const range = this.timeline.getWindow();
+        const interval = range.end - range.start;
+
+        let newEnd = new Date().getTime();
+        let newStart = newEnd - interval;
+
+        newStart += interval * MOTION_RATIO;
+        newEnd += interval * MOTION_RATIO;
+
+        this.timeline.setWindow({
+          start: new Date(newStart),
+          end: new Date(newEnd),
+          animation: false,
+        });
+      }
+    });
   }
 
   private focusOnItem(item: ItemData): void {
