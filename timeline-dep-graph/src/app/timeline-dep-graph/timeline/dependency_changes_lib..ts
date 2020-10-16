@@ -69,9 +69,7 @@ export function getdependencyChanges(prev: Task[], curr: Task[])
     } else if (!prevTask && currTask) {
       updatedTasks.add.push(currTask);
     } else if (currTask && prevTask && !equalsTask(currTask, prevTask)) {
-      if (!equalTaskFields(currTask, prevTask)) {
-        updatedTasks.update.push(currTask);
-      }
+      updatedTasks.update.push(currTask);
       const subTasksChanges =
         getdependencyChanges(prevTask.subTasks, currTask.subTasks);
       updatedTasks.add = [...updatedTasks.add, ...subTasksChanges.add];

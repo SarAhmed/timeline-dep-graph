@@ -172,6 +172,9 @@ export function patchAndFilterTasks(tasks: Task[], currTime: Date): Task[] {
       clonedTask.finishTime = currTime;
     }
     clonedTask.subTasks = patchAndFilterTasks(clonedTask.subTasks, currTime);
+    clonedTask.dependants =
+      patchAndFilterTasks(clonedTask.dependants, currTime);
+
     filtered.push(clonedTask);
   }
   return filtered;
@@ -182,10 +185,10 @@ function cloneTask(task: Task): Task {
     id: task.id,
     name: task.name,
     status: task.status,
-    dependants: task.dependants,
+    dependants: task.dependants.map(t => cloneTask(t)),
     startTime: task.startTime,
     finishTime: task.finishTime,
-    subTasks: task.subTasks,
+    subTasks: task.subTasks.map(t => cloneTask(t)),
   };
 }
 
