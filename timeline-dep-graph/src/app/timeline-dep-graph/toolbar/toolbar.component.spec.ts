@@ -89,6 +89,47 @@ describe('ToolbarComponent', () => {
     });
   });
 
+  it('navigates to the beginning of the rollout', () => {
+    component.timeline = createMockTimeline();
+    fixture.detectChanges();
+
+    const deFocusEarliestBtn = fixture.debugElement.query(
+      By.css('button.focusEarliest')
+    );
+    deFocusEarliestBtn.nativeElement.click();
+
+    expect(component.timeline.setWindow).toHaveBeenCalledWith({
+      start: new Date(new Date('2020-10-10').getTime() - (1000 * 5)),
+      end: new Date(new Date('2020-10-11').getTime() + (1000 * 5)),
+    });
+  });
+
+  it('navigates to the beginning of the rollout', () => {
+    component.timeline = createMockTimeline();
+    fixture.detectChanges();
+
+    const deFocusLatestBtn = fixture.debugElement.query(
+      By.css('button.focusLatest')
+    );
+    deFocusLatestBtn.nativeElement.click();
+
+    expect(component.timeline.setWindow).toHaveBeenCalledWith({
+      start: new Date(new Date('2020-10-11').getTime() - (1000 * 5)),
+      end: new Date(new Date('2020-10-12').getTime() + (1000 * 5)),
+    });
+  });
+
+  it('fits the visible window of the timeline to contain all the tasks', () => {
+    component.timeline = createMockTimeline();
+    fixture.detectChanges();
+
+    const deFitBtn = fixture.debugElement.query(
+      By.css('button.fit')
+    );
+    deFitBtn.nativeElement.click();
+
+    expect(component.timeline.fit).toHaveBeenCalled();
+  });
 });
 
 function createMockTimeline(): Timeline {
@@ -96,6 +137,22 @@ function createMockTimeline(): Timeline {
     zoomIn: jasmine.createSpy('zoomIn'),
     zoomOut: jasmine.createSpy('zoomOut'),
     setWindow: jasmine.createSpy('setWindow'),
+    itemSet: {
+      items: {
+        'a': {
+          data: {
+            start: new Date('2020-10-10'),
+            end: new Date('2020-10-11'),
+          }
+        },
+        'b': {
+          data: {
+            start: new Date('2020-10-11'),
+            end: new Date('2020-10-12'),
+          }
+        },
+      }
+    },
     getWindow: jasmine.createSpy('getWindow').and.returnValue({
       start: {
         valueOf: () => 0
@@ -103,7 +160,8 @@ function createMockTimeline(): Timeline {
       end: {
         valueOf: () => 1
       }
-    })
+    }),
+    fit: jasmine.createSpy('fit'),
   } as Timeline;
 
   return mockTimeline;

@@ -28,11 +28,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, filter } from 'rxjs/operators';
 import { DataSet, Timeline, TimelineOptions } from 'vis';
 
 import { ItemData, maptoItem, setItemsGroups } from './../Item';
-import { getSuperTask, getTaskById, Task, TaskId } from './../Task';
+import { getSuperTask, getTaskById, Task, TaskId, patchAndFilterTasks } from './../Task';
 import { ArrowService } from './arrow.service';
 import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
 import { GroupingService } from './grouping.service';
@@ -54,6 +54,7 @@ import { TimeTooltipService } from './time_tooltip.service';
 })
 export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   timeline: Timeline;
+  private filteredTasks: Task[] = [];
   private readonly items = new DataSet<ItemData>();
   private readonly destroyed$ = new ReplaySubject<void>();
   private isGrouped = false;
@@ -102,15 +103,16 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngAfterViewInit(): void {
     this.renderTimeline();
+    this.filteredTasks = patchAndFilterTasks(this.tasks, new Date());
     this.arrowService.setTimeline(this.timeline);
     this.timeTooltipService.setTimeline(this.timeline);
     this.hierarchyService.setTimeline(this.timeline);
     this.positionService.setTimeline(this.timeline);
-    this.positionService.setTasks(this.tasks);
+    this.positionService.setTasks(this.filteredTasks);
     this.groupingService.setTimeline(this.timeline);
 
     this.updateDepGraph({
-      add: this.tasks,
+      add: this.filteredTasks,
       remove: [],
       update: []
     });
@@ -122,7 +124,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
         if (props.event.target instanceof SVGRectElement) {
           const itemId = props.item;
-          const task = getTaskById(this.tasks, itemId);
+          const task = getTaskById(this.filteredTasks, itemId);
           if (task) {
             this.expandtask(task);
           }
@@ -131,7 +133,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.hierarchyService.compressTask$.pipe(takeUntil(this.destroyed$))
       .subscribe(itemId => {
-        const task = getTaskById(this.tasks, itemId);
+        const task = getTaskById(this.filteredTasks, itemId);
         if (task) {
           this.compressTask(task);
         }
@@ -160,6 +162,21 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
         this.hoveredTask.emit(props.item);
       });
+
+    this.timeline.on(
+      'currentTimeTick', () => {
+        const CURRENT_TIME = new Date();
+        const newFilteredTasks = patchAndFilterTasks(this.tasks, CURRENT_TIME);
+
+        const updatedTasks = getdependencyChanges(
+          this.filteredTasks, newFilteredTasks);
+
+        this.filteredTasks = newFilteredTasks;
+        updatedTasks.add = this.getVisibleTasks(updatedTasks.add);
+        updatedTasks.remove = this.getVisibleTasks(updatedTasks.remove);
+        updatedTasks.update = this.getVisibleTasks(updatedTasks.update);
+        this.updateDepGraph(updatedTasks);
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -169,12 +186,18 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (changes.tasks) { // Update the affected tasks only.
       const prev = changes.tasks.previousValue || [];
       const curr = changes.tasks.currentValue || [];
-      this.positionService.setTasks(curr);
+
+      const CURRENT_TIME = new Date();
+      this.filteredTasks = patchAndFilterTasks(curr, new Date());
+      this.positionService.setTasks(this.filteredTasks);
 
       const updatedTasks = getdependencyChanges(prev, curr);
-      updatedTasks.add = this.getVisibleTasks(updatedTasks.add);
-      updatedTasks.remove = this.getVisibleTasks(updatedTasks.remove);
-      updatedTasks.update = this.getVisibleTasks(updatedTasks.update);
+      updatedTasks.add = patchAndFilterTasks(
+        this.getVisibleTasks(updatedTasks.add), CURRENT_TIME);
+      updatedTasks.remove = patchAndFilterTasks(
+        this.getVisibleTasks(updatedTasks.remove), CURRENT_TIME);
+      updatedTasks.update = patchAndFilterTasks(
+        this.getVisibleTasks(updatedTasks.update), CURRENT_TIME);
 
       this.updateDepGraph(updatedTasks);
     }
@@ -204,7 +227,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (this.hierarchyService.isExpanded(task.id)) {
       return;
     }
-    const sup = getSuperTask(this.tasks, task.id);
+    const sup = getSuperTask(this.filteredTasks, task.id);
     if (sup && !this.hierarchyService.isExpanded(sup.id)) {
       this.expandtask(sup);
     }
@@ -251,7 +274,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.hierarchyService.removeHierarchyEl(task.id);
   }
 
-  private focusOn(prev: TaskId, curr: TaskId): void {
+  private focusOn(prev: TaskId | undefined, curr: TaskId | undefined): void {
     if (prev) {
       const prevItem = this.timeline.itemSet.items[prev]?.data;
       if (prevItem) {
@@ -259,12 +282,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
     }
     if (curr) {
-      const task = getTaskById(this.tasks, curr);
+      const task = getTaskById(this.filteredTasks, curr);
       if (!task || !task.startTime || !task.finishTime) {
         return;
       }
       this.compressTask(task);
-      const sup = getSuperTask(this.tasks, task.id);
+      const sup = getSuperTask(this.filteredTasks, task.id);
       if (sup) {
         this.expandtask(sup);
       }
@@ -323,7 +346,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private getVisibleTasks(tasks: Task[]): Task[] {
     return tasks.filter(t => {
-      const ancestor = getSuperTask(this.tasks, t.id);
+      const ancestor = getSuperTask(this.filteredTasks, t.id);
       return !ancestor || this.hierarchyService.isExpanded(ancestor.id);
     });
   }

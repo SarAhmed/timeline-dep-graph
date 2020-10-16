@@ -27,10 +27,26 @@ $button-border-color: #bfbfbf;
   }
 }
 
-.controller {
+.left-panel {
+  display: flex;
+
+  div {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.right-panel {
   margin-left: auto;
 
-  button {
-    margin: 5px;
+  display: flex;
+
+  div {
+    margin-left: 10px;
+    margin-right: 10px;
   }
+}
+
+.rolling {
+  color: #FF6060;
 }

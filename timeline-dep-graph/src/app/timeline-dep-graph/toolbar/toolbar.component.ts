@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { Timeline } from 'vis';
+
+import { earliestItem, ItemData, latestItem } from '../Item';
 
 const ZOOM_RATIO = 0.2;
 const MOTION_RATIO = 0.2;
@@ -25,9 +27,10 @@ const MOTION_RATIO = 0.2;
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss']
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnChanges {
 
   grouped = false;
+  rollingMode = false;
 
   @Input() timeline: Timeline;
 
@@ -35,12 +38,42 @@ export class ToolbarComponent {
 
   constructor() { }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.timeline) {
+      return;
+    }
+    if (changes.timeline) {
+      const prev = changes.timeline.previousValue;
+      const curr = changes.timeline.currentValue;
+      if (!prev && curr) {
+        curr.on('currentTimeTick', () => {
+          if (this.rollingMode) {
+            const range = this.timeline.getWindow();
+            const interval = range.end - range.start;
+
+            let newEnd = new Date().getTime();
+            let newStart = newEnd - interval;
+
+            newStart += interval * MOTION_RATIO;
+            newEnd += interval * MOTION_RATIO;
+
+            this.timeline.setWindow({
+              start: new Date(newStart),
+              end: new Date(newEnd),
+              animation: false,
+            });
+          }
+        });
+      }
+    }
+  }
+
   zoomIn(): void {
-    this.timeline.zoomIn(ZOOM_RATIO);
+    this.timeline.zoomIn(ZOOM_RATIO, { animation: !this.rollingMode });
   }
 
   zoomOut(): void {
-    this.timeline.zoomOut(ZOOM_RATIO);
+    this.timeline.zoomOut(ZOOM_RATIO, { animation: !this.rollingMode });
   }
 
   moveLeft(): void {
@@ -58,6 +91,35 @@ export class ToolbarComponent {
   groupTasks(): void {
     this.grouped = !this.grouped;
     this.groupedTimeline.emit(this.grouped);
+  }
+
+  focusEarliest(): void {
+    const item = earliestItem(this.timeline.itemSet.items);
+    this.focusOnItem(item);
+  }
+
+  focusLatest(): void {
+    const item = latestItem(this.timeline.itemSet.items);
+    this.focusOnItem(item);
+  }
+
+  toggleRolling(): void {
+    this.rollingMode = !this.rollingMode;
+  }
+
+  private focusOnItem(item: ItemData): void {
+    if (!item.start || !item.end) {
+      return;
+    }
+    /*
+     * Set the timeline visible window's start time to
+     * 5 seconds before the task start time,
+     * and the end time to 5 seconds after the task finish time.
+     */
+    this.timeline.setWindow({
+      start: new Date(item.start.getTime() - (1000 * 5)),
+      end: new Date(item.end.getTime() + (1000 * 5))
+    });
   }
 
   private move(percentage): void {
