@@ -97,9 +97,20 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
    */
   @Input() focusTask?: TaskId;
 
+  /**
+   * selectedTask is fired when the task name is being clicked on.
+   */
   @Output() selectedTask = new EventEmitter<TaskId>();
 
-  @Output() hoveredTask = new EventEmitter<TaskId>();
+  /**
+   * TaskOver is fired when the cursor moves over a task.
+   */
+  @Output() TaskOver = new EventEmitter<TaskId>();
+
+  /**
+   * TaskOut is fired when the cursor moves out of a task.
+   */
+  @Output() TaskOut = new EventEmitter<TaskId>();
 
   ngAfterViewInit(): void {
     this.renderTimeline();
@@ -116,6 +127,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       remove: [],
       update: []
     });
+    this.timeline.fit();
 
     this.timeline.on(
       'doubleClick', (props: { item: string, event: Event } | undefined) => {
@@ -139,8 +151,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         }
       });
 
-    this.hierarchyService.hoverOnTask$.pipe(takeUntil(this.destroyed$))
-      .subscribe(this.hoveredTask);
+    this.hierarchyService.TaskOver$.pipe(takeUntil(this.destroyed$))
+      .subscribe(this.TaskOver);
+
+    this.hierarchyService.TaskOut$.pipe(takeUntil(this.destroyed$))
+      .subscribe(this.TaskOut);
 
     this.hierarchyService.selectTask$.pipe(takeUntil(this.destroyed$))
       .subscribe(this.selectedTask);
@@ -156,11 +171,19 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
 
     this.timeline.on(
-      'mouseOver', (props: { item: string, event: Event } | undefined) => {
+      'itemover', (props: { item: string, event: Event } | undefined) => {
         if (!props || !props.item) {
           return;
         }
-        this.hoveredTask.emit(props.item);
+        this.TaskOver.emit(props.item);
+      });
+
+    this.timeline.on(
+      'itemout', (props: { item: string, event: Event } | undefined) => {
+        if (!props || !props.item) {
+          return;
+        }
+        this.TaskOut.emit(props.item);
       });
 
     this.timeline.on(
@@ -186,8 +209,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
     if (changes.tasks) { // Update the affected tasks only.
-      const prev = changes.tasks.previousValue || [];
-      const curr = changes.tasks.currentValue || [];
+      const prev: Task[] = changes.tasks.previousValue || [];
+      const curr: Task[] = changes.tasks.currentValue || [];
 
       const CURRENT_TIME = new Date();
       this.filteredTasks = patchAndFilterTasks(curr, new Date());
@@ -202,6 +225,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         this.getVisibleTasks(updatedTasks.update), CURRENT_TIME);
 
       this.updateDepGraph(updatedTasks);
+
+      if (prev.length === 0 && curr.length > 0) {
+        this.timeline.fit();
+      }
     }
     if (changes.focusTask) {
       const prev = changes.focusTask.previousValue;
@@ -406,17 +433,12 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private highlightItem(item: ItemData): void {
     const originialClassName = item.className;
-    this.items.update({
-      id: item.id,
-      className: `${originialClassName} highlighted`,
-    });
+    item.className = `${item.className} highlighted`;
+    this.items.update(item);
   }
 
   private removeHighlightOnItem(item: ItemData): void {
-    const originialClassName = item.className.replace(' highlighted', '');
-    this.items.update({
-      id: item.id,
-      className: originialClassName,
-    });
+    item.className = `${item.className.replace(' highlighted', '')}`;
+    this.items.update(item);
   }
 }

@@ -1,0 +1,10 @@
+.tdg-demo-container{
+  width: 100%;
+  padding: 0px;
+}
+
+.tdg-details-container, .tdg-details-container p{
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+}

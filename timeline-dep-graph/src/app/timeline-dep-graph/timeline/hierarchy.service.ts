@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { Timeline } from 'vis';
 
 import { Task, TaskId } from '../Task';
 import { AbsolutePosition, addPadding, addTopPadding, isValidAbsolutePosition, PositionService } from './position.service';
+
 
 type TaskName = SVGTextElement;
 type TaskContainer = SVGRectElement;
@@ -36,18 +36,21 @@ export class HierarchyService implements OnDestroy {
   private timeline: Timeline;
   private readonly hierarchyMap = new Map<TaskId, HierarchyElement>();
   private readonly compressTask = new ReplaySubject<TaskId>(1);
-  private readonly hoverOnTask = new ReplaySubject<TaskId>(1);
+  private readonly TaskOver = new ReplaySubject<TaskId>(1);
+  private readonly TaskOut = new ReplaySubject<TaskId>(1);
   private readonly selectTask = new ReplaySubject<TaskId>(1);
 
   readonly compressTask$: Observable<TaskId> = this.compressTask;
-  readonly hoverOnTask$: Observable<TaskId> = this.hoverOnTask;
+  readonly TaskOver$: Observable<TaskId> = this.TaskOver;
+  readonly TaskOut$: Observable<TaskId> = this.TaskOut;
   readonly selectTask$: Observable<TaskId> = this.selectTask;
 
   constructor(private positionService: PositionService) { }
 
   ngOnDestroy(): void {
     this.compressTask.complete();
-    this.hoverOnTask.complete();
+    this.TaskOver.complete();
+    this.TaskOut.complete();
     this.selectTask.complete();
   }
 
@@ -84,7 +87,13 @@ export class HierarchyService implements OnDestroy {
     container.addEventListener('mouseover', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
       const taskId = id.split('tdg-expanded-')[1];
-      this.hoverOnTask.next(taskId);
+      this.TaskOver.next(taskId);
+    });
+
+    container.addEventListener('mouseout', (event: Event) => {
+      const id = (event.target as HTMLElement)?.id;
+      const taskId = id.split('tdg-expanded-')[1];
+      this.TaskOut.next(taskId);
     });
 
     const taskName = this.createTaskName(`${task.name}`);
@@ -94,6 +103,8 @@ export class HierarchyService implements OnDestroy {
       const taskId = id.split('tdg-expanded-task-name-')[1];
       this.selectTask.next(taskId);
     });
+
+    setHierarchyCoordinates(container, taskName, boundingBox);
 
     this.hierarchyMap.set(
       task.id, { taskId: task.id, container, taskName });
