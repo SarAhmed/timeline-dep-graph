@@ -16,7 +16,7 @@
 
 <div class="tdg-demo-container">
   <tdg-timeline minHeight="500px" [focusTask]="focus" [tasks]="tasks" (selectedTask)="displaySelected($event)"
-    (TaskOver)="taskOver($event)" (TaskOut)="taskOut($event)"></tdg-timeline>
+    (taskOver)="taskOver($event)" (taskOut)="taskOut($event)"></tdg-timeline>
   <hr>
   <div class="tdg-details-container">
     <form [formGroup]="tdgForm">

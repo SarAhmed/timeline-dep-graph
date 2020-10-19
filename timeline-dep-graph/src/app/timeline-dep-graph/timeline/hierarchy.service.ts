@@ -36,21 +36,21 @@ export class HierarchyService implements OnDestroy {
   private timeline: Timeline;
   private readonly hierarchyMap = new Map<TaskId, HierarchyElement>();
   private readonly compressTask = new ReplaySubject<TaskId>(1);
-  private readonly TaskOver = new ReplaySubject<TaskId>(1);
-  private readonly TaskOut = new ReplaySubject<TaskId>(1);
+  private readonly taskOver = new ReplaySubject<TaskId>(1);
+  private readonly taskOut = new ReplaySubject<TaskId>(1);
   private readonly selectTask = new ReplaySubject<TaskId>(1);
 
   readonly compressTask$: Observable<TaskId> = this.compressTask;
-  readonly TaskOver$: Observable<TaskId> = this.TaskOver;
-  readonly TaskOut$: Observable<TaskId> = this.TaskOut;
+  readonly TaskOver$: Observable<TaskId> = this.taskOver;
+  readonly TaskOut$: Observable<TaskId> = this.taskOut;
   readonly selectTask$: Observable<TaskId> = this.selectTask;
 
   constructor(private positionService: PositionService) { }
 
   ngOnDestroy(): void {
     this.compressTask.complete();
-    this.TaskOver.complete();
-    this.TaskOut.complete();
+    this.taskOver.complete();
+    this.taskOut.complete();
     this.selectTask.complete();
   }
 
@@ -87,13 +87,13 @@ export class HierarchyService implements OnDestroy {
     container.addEventListener('mouseover', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
       const taskId = id.split('tdg-expanded-')[1];
-      this.TaskOver.next(taskId);
+      this.taskOver.next(taskId);
     });
 
     container.addEventListener('mouseout', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
       const taskId = id.split('tdg-expanded-')[1];
-      this.TaskOut.next(taskId);
+      this.taskOut.next(taskId);
     });
 
     const taskName = this.createTaskName(`${task.name}`);

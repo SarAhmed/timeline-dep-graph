@@ -103,14 +103,14 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Output() selectedTask = new EventEmitter<TaskId>();
 
   /**
-   * TaskOver is fired when the cursor moves over a task.
+   * taskOver is fired when the cursor moves over a task.
    */
-  @Output() TaskOver = new EventEmitter<TaskId>();
+  @Output() taskOver = new EventEmitter<TaskId>();
 
   /**
-   * TaskOut is fired when the cursor moves out of a task.
+   * taskOut is fired when the cursor moves out of a task.
    */
-  @Output() TaskOut = new EventEmitter<TaskId>();
+  @Output() taskOut = new EventEmitter<TaskId>();
 
   ngAfterViewInit(): void {
     this.renderTimeline();
@@ -152,10 +152,10 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
 
     this.hierarchyService.TaskOver$.pipe(takeUntil(this.destroyed$))
-      .subscribe(this.TaskOver);
+      .subscribe(this.taskOver);
 
     this.hierarchyService.TaskOut$.pipe(takeUntil(this.destroyed$))
-      .subscribe(this.TaskOut);
+      .subscribe(this.taskOut);
 
     this.hierarchyService.selectTask$.pipe(takeUntil(this.destroyed$))
       .subscribe(this.selectedTask);
@@ -175,7 +175,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         if (!props || !props.item) {
           return;
         }
-        this.TaskOver.emit(props.item);
+        this.taskOver.emit(props.item);
       });
 
     this.timeline.on(
@@ -183,7 +183,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
         if (!props || !props.item) {
           return;
         }
-        this.TaskOut.emit(props.item);
+        this.taskOut.emit(props.item);
       });
 
     this.timeline.on(

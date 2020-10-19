@@ -47,6 +47,7 @@ export class DemoComponent implements OnInit {
   taskOver(taskId: TaskId): void {
     (this.hoveredOnContainer.nativeElement as HTMLElement).innerHTML = taskId;
   }
+
   taskOut(taskId: TaskId): void {
     const span = (this.hoveredOnContainer.nativeElement as HTMLElement);
     if (span.innerHTML === taskId) {
