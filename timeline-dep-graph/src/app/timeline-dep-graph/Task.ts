@@ -25,7 +25,7 @@ export interface Task {
   readonly id: TaskId;
   name: string;
   status: Status;
-  dependants: TaskId[];
+  dependents: TaskId[];
   startTime?: Date;
   finishTime?: Date;
   subTasks: Task[];
@@ -39,8 +39,8 @@ export interface Task {
  */
 export function equalsTask(task1: Task, task2: Task): boolean {
   return equalTaskFields(task1, task2)
-    && JSON.stringify(task1.dependants.sort()) ===
-    JSON.stringify(task2.dependants.sort())
+    && JSON.stringify(task1.dependents.sort()) ===
+    JSON.stringify(task2.dependents.sort())
     && equalsTaskArray(task1.subTasks, task2.subTasks);
 }
 
@@ -68,14 +68,14 @@ export function rootTasks(tasks: Task[]): Task[] {
 
 /**
  * Given an array of tasks, return the tasks that
- * do not have any dependants.
+ * do not have any dependents.
  * @param tasks Array of tasks representing a directed acyclic graph (DAG).
- * @return Array of tasks that do not have any dependants.
+ * @return Array of tasks that do not have any dependents.
  */
 export function leafTasks(tasks: Task[]): Task[] {
   const leafs: Task[] = [];
   for (const task of tasks) {
-    if (task.dependants.length === 0) {
+    if (task.dependents.length === 0) {
       leafs.push(task);
     }
   }
@@ -184,7 +184,7 @@ function cloneTask(task: Task): Task {
     id: task.id,
     name: task.name,
     status: task.status,
-    dependants: task.dependants,
+    dependents: task.dependents,
     startTime: task.startTime,
     finishTime: task.finishTime,
     subTasks: task.subTasks.map(t => cloneTask(t)),
@@ -192,7 +192,7 @@ function cloneTask(task: Task): Task {
 }
 
 function dfsTraversal(tasks: Task[], curr: Task, visisted: Set<TaskId>): void {
-  for (const dep of curr.dependants) {
+  for (const dep of curr.dependents) {
     if (!visisted.has(dep)) {
       visisted.add(dep);
       const deptask = getTaskById(tasks, dep);
