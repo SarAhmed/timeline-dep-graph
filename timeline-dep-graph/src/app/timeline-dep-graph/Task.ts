@@ -25,7 +25,7 @@ export interface Task {
   readonly id: TaskId;
   name: string;
   status: Status;
-  dependants: Task[];
+  dependants: TaskId[];
   startTime?: Date;
   finishTime?: Date;
   subTasks: Task[];
@@ -39,7 +39,8 @@ export interface Task {
  */
 export function equalsTask(task1: Task, task2: Task): boolean {
   return equalTaskFields(task1, task2)
-    && equalsTaskArray(task1.dependants, task2.dependants)
+    && JSON.stringify(task1.dependants.sort()) ===
+    JSON.stringify(task2.dependants.sort())
     && equalsTaskArray(task1.subTasks, task2.subTasks);
 }
 
@@ -54,7 +55,7 @@ export function rootTasks(tasks: Task[]): Task[] {
   const visited = new Set<TaskId>();
   for (const task of tasks) {
     if (!visited.has(task.id)) {
-      dfsTraversal(task, visited);
+      dfsTraversal(tasks, task, visited);
     }
   }
   for (const task of tasks) {
@@ -172,8 +173,6 @@ export function patchAndFilterTasks(tasks: Task[], currTime: Date): Task[] {
       clonedTask.finishTime = currTime;
     }
     clonedTask.subTasks = patchAndFilterTasks(clonedTask.subTasks, currTime);
-    clonedTask.dependants =
-      patchAndFilterTasks(clonedTask.dependants, currTime);
 
     filtered.push(clonedTask);
   }
@@ -185,18 +184,22 @@ function cloneTask(task: Task): Task {
     id: task.id,
     name: task.name,
     status: task.status,
-    dependants: task.dependants.map(t => cloneTask(t)),
+    dependants: task.dependants,
     startTime: task.startTime,
     finishTime: task.finishTime,
     subTasks: task.subTasks.map(t => cloneTask(t)),
   };
 }
 
-function dfsTraversal(curr: Task, visisted: Set<TaskId>): void {
+function dfsTraversal(tasks: Task[], curr: Task, visisted: Set<TaskId>): void {
   for (const dep of curr.dependants) {
-    if (!visisted.has(dep.id)) {
-      visisted.add(dep.id);
-      dfsTraversal(dep, visisted);
+    if (!visisted.has(dep)) {
+      visisted.add(dep);
+      const deptask = getTaskById(tasks, dep);
+      if (!deptask) {
+        continue;
+      }
+      dfsTraversal(tasks, deptask, visisted);
     }
   }
 }

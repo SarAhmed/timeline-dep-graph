@@ -60,9 +60,9 @@ export class ArrowService {
     for (const task of tasks) {
       const outgoingArrows = this.outgoingArrowsMap.get(task.id);
       for (const child of task.dependants) {
-        childrenIds.add(child.id);
-        if (!outgoingArrows || !outgoingArrows.has(child.id)) {
-          this.addArrow(task.id, child.id);
+        childrenIds.add(child);
+        if (!outgoingArrows || !outgoingArrows.has(child)) {
+          this.addArrow(task.id, child);
         }
       }
 
@@ -77,7 +77,7 @@ export class ArrowService {
   private addArrows(tasks: Task[]): void {
     for (const task of tasks) {
       for (const child of task.dependants) {
-        this.addArrow(task.id, child.id);
+        this.addArrow(task.id, child);
       }
     }
   }
