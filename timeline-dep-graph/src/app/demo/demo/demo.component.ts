@@ -88,15 +88,6 @@ export class DemoComponent implements OnInit {
       startTime: new Date('2020-10-12T00:00:00.000Z'),
       finishTime: new Date('2020-10-12T01:00:00.000Z'),
     };
-    const task4: Task = {
-      id: '4',
-      name: 'Task 4',
-      status: Status.RUNNING,
-      dependants: [],
-      subTasks: [],
-      startTime: new Date('2020-10-12T01:00:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
-    };
     const task1: Task = {
       id: '1',
       name: 'Task 1',
@@ -147,7 +138,7 @@ export class DemoComponent implements OnInit {
     };
     const task3A: Task = {
       id: '3A',
-      name: 'Task 4A',
+      name: 'Task 3A',
       status: Status.SUCCESS,
       dependants: [],
       subTasks: [],
@@ -187,6 +178,15 @@ export class DemoComponent implements OnInit {
 
     task3.subTasks = [task3A, task3B, task3C, task3D];
 
+    const task4: Task = {
+      id: '4',
+      name: 'Task 4',
+      status: Status.RUNNING,
+      dependants: [],
+      subTasks: [],
+      startTime: new Date('2020-10-12T01:00:00.000Z'),
+      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+    };
     task0.dependants = [task1, task4];
     task1.dependants = [task2, task3];
 
