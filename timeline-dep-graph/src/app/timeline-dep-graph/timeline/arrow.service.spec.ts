@@ -93,9 +93,9 @@ describe('ArrowService', () => {
       finishTime: new Date('2020-10-05'),
     };
 
-    task1.dependants.push(task2);
-    task2.dependants.push(task3);
-    task2.dependants.push(task4);
+    task1.dependants.push('2');
+    task2.dependants.push('3');
+    task2.dependants.push('4');
 
     const tasks = [task1, task2, task3, task4];
     mockTimeline.itemSet.items = convertToItems(tasks);

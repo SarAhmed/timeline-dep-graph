@@ -74,7 +74,6 @@ export class DemoComponent implements OnInit {
         task.finishTime === 'undefined' ? undefined : new Date(task.finishTime);
 
       task.subTasks = this.parseInputTasks(task.subTasks);
-      task.dependants = this.parseInputTasks(task.dependants);
     }
     return tasks;
   }
@@ -125,7 +124,7 @@ export class DemoComponent implements OnInit {
       startTime: new Date('2020-10-12T03:20:00.000Z'),
       finishTime: new Date('2020-10-12T04:00:00.000Z'),
     };
-    task2A.dependants = [task2B];
+    task2A.dependants = ['2B'];
     task2.subTasks = [task2A, task2B];
 
     const task3: Task = {
@@ -173,9 +172,9 @@ export class DemoComponent implements OnInit {
       startTime: new Date('2020-10-12T03:50:00.000Z'),
       finishTime: new Date('2020-10-12T04:00:00.000Z'),
     };
-    task3A.dependants = [task3B, task3C];
-    task3B.dependants = [task3D];
-    task3C.dependants = [task3D];
+    task3A.dependants = ['3B', '3C'];
+    task3B.dependants = ['3D'];
+    task3C.dependants = ['3D'];
 
     task3.subTasks = [task3A, task3B, task3C, task3D];
 
@@ -188,8 +187,8 @@ export class DemoComponent implements OnInit {
       startTime: new Date('2020-10-12T01:00:00.000Z'),
       finishTime: new Date('2020-10-12T04:00:00.000Z'),
     };
-    task0.dependants = [task1, task4];
-    task1.dependants = [task2, task3];
+    task0.dependants = ['1', '4'];
+    task1.dependants = ['2', '3'];
 
     this.tasks = [task0, task1, task2, task3, task4];
 
@@ -198,3 +197,4 @@ export class DemoComponent implements OnInit {
     });
   }
 }
+
