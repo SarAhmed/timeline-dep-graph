@@ -23,6 +23,7 @@
     "@angular/router": "~10.1.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
+    "vis": "^4.21.0-EOL",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
