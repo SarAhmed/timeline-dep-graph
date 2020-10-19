@@ -60,7 +60,7 @@ describe('ArrowService', () => {
       id: '1',
       name: 'Task 1',
       status: Status.SUCCESS,
-      dependants: [],
+      dependents: [],
       subTasks: [],
       startTime: new Date('2020-09-28'),
       finishTime: new Date('2020-09-29'),
@@ -69,7 +69,7 @@ describe('ArrowService', () => {
       id: '2',
       name: 'Task 2',
       status: Status.SUCCESS,
-      dependants: [],
+      dependents: [],
       subTasks: [],
       startTime: new Date('2020-10-02'),
       finishTime: new Date('2020-10-03'),
@@ -78,7 +78,7 @@ describe('ArrowService', () => {
       id: '3',
       name: 'Task 3',
       status: Status.SUCCESS,
-      dependants: [],
+      dependents: [],
       subTasks: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
@@ -87,15 +87,15 @@ describe('ArrowService', () => {
       id: '4',
       name: 'Task 4',
       status: Status.SUCCESS,
-      dependants: [],
+      dependents: [],
       subTasks: [],
       startTime: new Date('2020-10-03'),
       finishTime: new Date('2020-10-05'),
     };
 
-    task1.dependants.push('2');
-    task2.dependants.push('3');
-    task2.dependants.push('4');
+    task1.dependents.push('2');
+    task2.dependents.push('3');
+    task2.dependents.push('4');
 
     const tasks = [task1, task2, task3, task4];
     mockTimeline.itemSet.items = convertToItems(tasks);
