@@ -422,7 +422,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     <b>&nbsp;&nbsp<span class="tdg-taskName-b">${before.name}</span></b>
       <div class='tdg-task-progress-wrapper'>
         <svg class="tdg-task-progress-bar">
-          <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
+          <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%"
+                class="tdg-${before.status} ${before.expandable ? 'expandable' : ''}"/>
         </svg>
         <div class="tdg-expand">${before.expandable ? '<b>+</b>' : ''}</div>
       </div>
