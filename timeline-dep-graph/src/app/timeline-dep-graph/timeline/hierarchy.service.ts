@@ -78,7 +78,7 @@ export class HierarchyService implements OnDestroy {
     container.classList.add('tdg-pointer');
     container.id = `tdg-expanded-${task.id}`;
 
-    container.addEventListener('dblclick', (event: Event) => {
+    container.addEventListener('click', (event: Event) => {
       const id = (event.target as HTMLElement)?.id;
       const taskId = id.split('tdg-expanded-')[1];
       this.compressTask.next(taskId);

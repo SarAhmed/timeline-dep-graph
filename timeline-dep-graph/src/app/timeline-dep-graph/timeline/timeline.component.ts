@@ -130,7 +130,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.timeline.fit();
 
     this.timeline.on(
-      'doubleClick', (props: { item: string, event: Event } | undefined) => {
+      'click', (props: { item: string, event: Event } | undefined) => {
         if (!props || !props.item) {
           return;
         }
