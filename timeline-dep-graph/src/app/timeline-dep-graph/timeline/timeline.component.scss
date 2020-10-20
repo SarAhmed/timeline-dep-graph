@@ -74,6 +74,10 @@ $highlight-color: var(--highlight-color, #ffff9988);
     stroke: black;
     stroke-width: 1;
     opacity: 0.1;
+
+    &:hover {
+      opacity: 0.3;
+    }
   }
 
   .vis-panel.vis-background {
