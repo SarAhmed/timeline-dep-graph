@@ -34,7 +34,7 @@ import { DataSet, Timeline, TimelineOptions } from 'vis';
 import { ItemData, maptoItem, setItemsGroups } from './../Item';
 import { getSuperTask, getTaskById, patchAndFilterTasks, Task, TaskId } from './../Task';
 import { ArrowService } from './arrow.service';
-import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib.';
+import { DependencyChanges, getdependencyChanges } from './dependency_changes_lib';
 import { GroupingService } from './grouping.service';
 import { HierarchyService } from './hierarchy.service';
 import { PositionService } from './position.service';

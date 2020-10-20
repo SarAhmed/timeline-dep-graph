@@ -19,7 +19,7 @@ import { Timeline } from 'vis';
 
 import { Task } from '../Task';
 import { TaskId } from './../Task';
-import { DependencyChanges } from './dependency_changes_lib.';
+import { DependencyChanges } from './dependency_changes_lib';
 import { AbsolutePosition, isValidAbsolutePosition, PositionService } from './position.service';
 
 interface ArrowCoordinates {

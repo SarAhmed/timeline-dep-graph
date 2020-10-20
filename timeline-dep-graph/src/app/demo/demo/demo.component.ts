@@ -112,7 +112,7 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:00:00.000Z'),
+      startTime: new Date('2020-10-12T02:40:00.000Z'),
       finishTime: new Date('2020-10-12T03:20:00.000Z'),
     };
     const task2B: Task = {
