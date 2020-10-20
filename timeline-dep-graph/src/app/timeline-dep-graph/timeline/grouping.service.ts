@@ -17,14 +17,16 @@
 import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { getUsedStatusSet } from '../Item';
-import { Status } from './../Status';
-import { Task } from './../Task';
+import { ItemData, getUsedStatusSet } from '../Item';
+import { Status } from '../Status';
+import { Task } from '../Task';
 
 interface Group {
   'id': string;
   content: string;
   style: string;
+  subgroupStack?: boolean;
+  subgroupOrder?: (a: ItemData, b: ItemData) => number;
 }
 
 @Injectable()
@@ -83,6 +85,10 @@ export class GroupingService {
       'id': 'unGrouped',
       content: '<br>',
       style: 'width: 0px;',
+      subgroupStack: true,
+      subgroupOrder: (a, b) => {
+        return a.subgroup < b.subgroup ? -1 : 1;
+      },
     };
 
     groups.push(padding);

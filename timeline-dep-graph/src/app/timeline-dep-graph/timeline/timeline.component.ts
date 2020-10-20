@@ -347,7 +347,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       [...updatedTasks.add, ...updatedTasks.update]);
 
     for (const task of updatedTasks.add) {
-      const item = maptoItem(task, this.isGrouped);
+      const item = maptoItem(task, this.filteredTasks, this.isGrouped);
       this.items.add(item, this.isGrouped);
     }
 
@@ -359,7 +359,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
           this.hierarchyService.updateHierarchyEl(task);
         }
       } else {
-        const item = maptoItem(task, this.isGrouped);
+        const item = maptoItem(task, this.filteredTasks, this.isGrouped);
         this.items.update(item);
       }
     }
@@ -368,7 +368,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (this.hierarchyService.isExpanded(task.id)) {
         this.compressTask(task);
       }
-      const item = maptoItem(task, this.isGrouped);
+      const item = maptoItem(task, this.filteredTasks, this.isGrouped);
       this.items.remove(item);
     }
   }
@@ -398,7 +398,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     const timelineOptions: TimelineOptions = {
       start: timelineStart.getTime(),
       template: this.generateItemTemplate,
-      order: (a: ItemData, b: ItemData) => a.id.localeCompare(b.id),
+      order: (a: ItemData, b: ItemData) => a.fullId < b.fullId ? -1 : 1,
       margin: {
         item: 15,
       },
