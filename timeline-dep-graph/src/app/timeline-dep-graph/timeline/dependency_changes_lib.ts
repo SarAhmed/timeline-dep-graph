@@ -15,7 +15,7 @@
  */
 
 import { Task } from '../Task';
-import { equalsTask, equalTaskFields, TaskId } from './../Task';
+import { equalsTask, equalTaskFields, TaskId } from '../Task';
 
 interface TaskChangesHolder {
   prev?: Task;
