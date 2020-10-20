@@ -58,12 +58,12 @@ export class GroupingService {
         continue;
       }
       const padding: Group = {
-        'id': `tdg-group-padding-${status}`,
+        id: `tdg-group-padding-${status}`,
         content: '<br>',
         style: 'border: 1px solid transparent;'
       };
       const group: Group = {
-        'id': status,
+        id: status,
         content: status,
         style: 'text-transform: capitalize;'
       };
@@ -77,12 +77,12 @@ export class GroupingService {
     this.isGrouped = false;
     const groups: Group[] = [];
     const padding: Group = {
-      'id': 'tdg-group-padding-unGrouped',
+      id: 'tdg-group-padding-unGrouped',
       content: '<br>',
       style: 'border: 1px solid transparent;width: 0px;',
     };
     const group: Group = {
-      'id': 'unGrouped',
+      id: 'unGrouped',
       content: '<br>',
       style: 'width: 0px;',
       subgroupStack: true,

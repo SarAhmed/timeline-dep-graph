@@ -52,7 +52,7 @@ describe('PositionService', () => {
     };
 
     mockTimeline.itemSet.items = {
-      '1': {
+      1: {
         top: 0,
         left: 0,
         width: 2,
@@ -62,7 +62,7 @@ describe('PositionService', () => {
           height: 2,
         }
       },
-      '2': {
+      2: {
         top: 0,
         left: 5,
         width: 2,
@@ -107,7 +107,7 @@ describe('PositionService', () => {
     service.setTasks(tasks);
 
     mockTimeline.itemSet.items = {
-      '1': {
+      1: {
         top: 0,
         left: 0,
         width: 2,
@@ -117,7 +117,7 @@ describe('PositionService', () => {
           height: 2,
         }
       },
-      '2': {
+      2: {
         top: 0,
         left: 5,
         width: 2,
@@ -183,7 +183,7 @@ describe('PositionService', () => {
     service.setTasks(tasks);
 
     mockTimeline.itemSet.items = {
-      'a': {
+      a: {
         top: 0,
         left: 0,
         width: 2,
@@ -193,7 +193,7 @@ describe('PositionService', () => {
           height: 2,
         }
       },
-      'b': {
+      b: {
         top: 0,
         left: 5,
         width: 2,

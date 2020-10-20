@@ -62,7 +62,7 @@ export function maptoItem(
   }
 
   return {
-    'id': task.id,
+    id: task.id,
     fullId,
     name: task.name,
     status: task.status,
