@@ -17,26 +17,32 @@
 <div class="tdg-toolbar-container">
   <div class="left-panel">
     <div class="zooming">
-      <button class="zoomIn" mat-flat-button aria-label="Zoom In" (click)="zoomIn()">
+      <button class="zoomIn" mat-flat-button matTooltip="Zoom In" aria-label="Zoom In" (click)="zoomIn()">
         <mat-icon>zoom_in</mat-icon>
       </button>
-      <button class="zoomOut" mat-flat-button aria-label="Zoom Out" (click)="zoomOut()">
+      <button class="zoomOut" mat-flat-button matTooltip="Zoom out" aria-label="Zoom Out" (click)="zoomOut()">
         <mat-icon>zoom_out</mat-icon>
       </button>
     </div>
 
     <div class="navigation">
-      <button class="focusEarliest" mat-flat-button aria-label="Earliest Task" [disabled]="rollingMode"
+      <button class="focusEarliest" mat-flat-button matTooltip="Scroll to begining"
+              aria-label="Earliest Task" [disabled]="rollingMode"
         (click)="focusEarliest()">
         <mat-icon>first_page</mat-icon>
       </button>
-      <button class="moveLeft" mat-flat-button aria-label="Move Left" [disabled]="rollingMode" (click)="moveLeft()">
+      <button class="moveLeft" mat-flat-button aria-label="Move Left"
+              matTooltip="Scroll left"
+              [disabled]="rollingMode" (click)="moveLeft()">
         <mat-icon>keyboard_arrow_left</mat-icon>
       </button>
-      <button class="moveRight" mat-flat-button aria-label="Move Right" [disabled]="rollingMode" (click)="moveRight()">
+      <button class="moveRight" mat-flat-button aria-label="Move Right"
+              matTooltip="Scroll right"
+              [disabled]="rollingMode" (click)="moveRight()">
         <mat-icon>keyboard_arrow_right</mat-icon>
       </button>
-      <button class="focusLatest" mat-flat-button aria-label="Latest Task" [disabled]="rollingMode"
+      <button class="focusLatest" mat-flat-button matTooltip="Scroll to latest"
+              aria-label="Latest Task" [disabled]="rollingMode"
         (click)="focusLatest()">
         <mat-icon>last_page</mat-icon>
       </button>
@@ -45,19 +51,20 @@
 
   <div class="right-panel">
     <div class="controller">
-      <button class="fit" mat-flat-button aria-label="Timeline Fit" [disabled]="rollingMode" (click)="fit()">
+      <button class="fit" mat-flat-button matTooltip="Show whole timeline"
+              aria-label="Timeline Fit" [disabled]="rollingMode" (click)="fit()">
         <mat-icon>zoom_out_map</mat-icon>
       </button>
-      <button class="group" mat-flat-button aria-label="Group Tasks" (click)="groupTasks()">
-        <mat-icon *ngIf="!grouped; else ungroup">view_list</mat-icon>
-        <ng-template #ungroup>
-          <mat-icon>timeline</mat-icon>
-        </ng-template>
+      <button class="group" mat-flat-button
+              [matTooltip]="grouped ? 'Ungroup tasks' : 'Group tasks into status'"
+              aria-label="Group Tasks" (click)="groupTasks()">
+        <mat-icon>{{grouped ? 'timeline' : 'view_list'}}</mat-icon>
       </button>
     </div>
 
     <div class="time">
       <button [class.rolling]="rollingMode" mat-flat-button aria-label="Rolling Mode"
+              [matTooltip]="rollingMode ? 'Disable live rolling' : 'Enable live rolling'"
         (click)="toggleRolling()">
         <mat-icon>access_time</mat-icon>
       </button>
