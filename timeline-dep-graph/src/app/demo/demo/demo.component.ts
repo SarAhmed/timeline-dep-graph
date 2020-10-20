@@ -31,8 +31,8 @@ export class DemoComponent implements OnInit {
   focus: TaskId;
 
   tdgForm: FormGroup = new FormGroup({
-    'tasks': new FormControl(''),
-    'focus': new FormControl(''),
+    tasks: new FormControl(''),
+    focus: new FormControl(''),
   });
 
   @ViewChild('hoveredOnContainer') hoveredOnContainer: ElementRef;
@@ -193,7 +193,7 @@ export class DemoComponent implements OnInit {
     this.tasks = [task0, task1, task2, task3, task4];
 
     this.tdgForm.patchValue({
-      'tasks': JSON.stringify(this.tasks, undefined, 2),
+      tasks: JSON.stringify(this.tasks, undefined, 2),
     });
   }
 }

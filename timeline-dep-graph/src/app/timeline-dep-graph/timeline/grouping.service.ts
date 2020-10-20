@@ -17,14 +17,16 @@
 import { Injectable } from '@angular/core';
 import { Timeline } from 'vis';
 
-import { getUsedStatusSet } from '../Item';
-import { Status } from './../Status';
-import { Task } from './../Task';
+import { ItemData, getUsedStatusSet } from '../Item';
+import { Status } from '../Status';
+import { Task } from '../Task';
 
 interface Group {
   'id': string;
   content: string;
   style: string;
+  subgroupStack?: boolean;
+  subgroupOrder?: (a: ItemData, b: ItemData) => number;
 }
 
 @Injectable()
@@ -56,12 +58,12 @@ export class GroupingService {
         continue;
       }
       const padding: Group = {
-        'id': `tdg-group-padding-${status}`,
+        id: `tdg-group-padding-${status}`,
         content: '<br>',
         style: 'border: 1px solid transparent;'
       };
       const group: Group = {
-        'id': status,
+        id: status,
         content: status,
         style: 'text-transform: capitalize;'
       };
@@ -75,14 +77,18 @@ export class GroupingService {
     this.isGrouped = false;
     const groups: Group[] = [];
     const padding: Group = {
-      'id': 'tdg-group-padding-unGrouped',
+      id: 'tdg-group-padding-unGrouped',
       content: '<br>',
       style: 'border: 1px solid transparent;width: 0px;',
     };
     const group: Group = {
-      'id': 'unGrouped',
+      id: 'unGrouped',
       content: '<br>',
       style: 'width: 0px;',
+      subgroupStack: true,
+      subgroupOrder: (a, b) => {
+        return a.subgroup < b.subgroup ? -1 : 1;
+      },
     };
 
     groups.push(padding);

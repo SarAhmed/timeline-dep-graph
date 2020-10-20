@@ -130,7 +130,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.timeline.fit();
 
     this.timeline.on(
-      'doubleClick', (props: { item: string, event: Event } | undefined) => {
+      'click', (props: { item: string, event: Event } | undefined) => {
         if (!props || !props.item) {
           return;
         }
@@ -347,7 +347,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       [...updatedTasks.add, ...updatedTasks.update]);
 
     for (const task of updatedTasks.add) {
-      const item = maptoItem(task, this.isGrouped);
+      const item = maptoItem(task, this.filteredTasks, this.isGrouped);
       this.items.add(item, this.isGrouped);
     }
 
@@ -359,7 +359,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
           this.hierarchyService.updateHierarchyEl(task);
         }
       } else {
-        const item = maptoItem(task, this.isGrouped);
+        const item = maptoItem(task, this.filteredTasks, this.isGrouped);
         this.items.update(item);
       }
     }
@@ -368,7 +368,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (this.hierarchyService.isExpanded(task.id)) {
         this.compressTask(task);
       }
-      const item = maptoItem(task, this.isGrouped);
+      const item = maptoItem(task, this.filteredTasks, this.isGrouped);
       this.items.remove(item);
     }
   }
@@ -398,7 +398,7 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     const timelineOptions: TimelineOptions = {
       start: timelineStart.getTime(),
       template: this.generateItemTemplate,
-      order: (a: ItemData, b: ItemData) => a.id.localeCompare(b.id),
+      order: (a: ItemData, b: ItemData) => a.fullId < b.fullId ? -1 : 1,
       margin: {
         item: 15,
       },
@@ -422,7 +422,8 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
     <b>&nbsp;&nbsp<span class="tdg-taskName-b">${before.name}</span></b>
       <div class='tdg-task-progress-wrapper'>
         <svg class="tdg-task-progress-bar">
-          <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%" class="tdg-${before.status}"/>
+          <rect x="0" y="0" rx="5" ry="5" height="100%" width="100%"
+                class="tdg-${before.status} ${before.expandable ? 'expandable' : ''}"/>
         </svg>
         <div class="tdg-expand">${before.expandable ? '<b>+</b>' : ''}</div>
       </div>

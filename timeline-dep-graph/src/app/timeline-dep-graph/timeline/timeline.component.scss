@@ -14,3 +14,139 @@
  * limitations under the License.
  */
 
+$unknown-color: var(--unknown-color, gray);
+$success-color: var(--success-color, green);
+$running-color: var(--running-color, blue);
+$failed-color: var(--failed-color, red);
+$blocked-color: var(--blocked-color, yellow);
+$highlight-color: var(--highlight-color, #ffff9988);
+
+:host ::ng-deep {
+  .vis-item.transeparent {
+    background-color: transparent;
+    border: transparent;
+
+    >div {
+      >* {
+        margin: 0px;
+        padding: 0px;
+      }
+    }
+  }
+
+  .vis-item.highlighted {
+    background-color: $highlight-color;
+    border-color: $highlight-color;
+  }
+
+  .tdg-itemDetails {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tdg-task-progress-bar {
+    stroke: black;
+    stroke-width: 1;
+    width: 100%;
+    height: 15px;
+  }
+
+  @mixin statusColor($class, $base-color) {
+    rect#{$class} {
+      fill: var(--#{$base-color}-color);
+      &.expandable:hover {
+        fill: var(--#{$base-color}-select-color);
+      }
+    }
+
+    small#{$class} {
+      color: $base-color;
+    }
+  }
+
+  @include statusColor('.tdg-unknown', 'unknown');
+  @include statusColor('.tdg-success', 'success');
+  @include statusColor('.tdg-running', 'running');
+  @include statusColor('.tdg-failed',  'failed');
+  @include statusColor('.tdg-blocked', 'blocked');
+
+  rect.tdg-hierarchy {
+    stroke: black;
+    stroke-width: 1;
+    opacity: 0.1;
+
+    &:hover {
+      opacity: 0.3;
+    }
+  }
+
+  .vis-panel.vis-background {
+    z-index: -4;
+
+  }
+
+  .vis-panel.vis-center {
+    z-index: 1;
+    pointer-events: auto;
+  }
+
+  .vis-content {
+    pointer-events: none;
+  }
+
+  .vis-timeline {
+    svg {
+      pointer-events: all;
+
+      text {
+        fill: black;
+        text-decoration: underline;
+        cursor: pointer;
+
+        &:hover {
+          fill: blue;
+        }
+
+        &:active {
+          fill: red;
+        }
+      }
+    }
+
+    .tdg-taskName-b {
+      pointer-events: auto;
+      color: black;
+      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        color: blue;
+      }
+
+      &:active {
+        color: red;
+      }
+    }
+
+  }
+
+  .tdg-task-progress-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .tdg-expand {
+      position: absolute;
+      right: 5px;
+      color: white;
+    }
+  }
+
+  .tdg-pointer {
+    cursor: pointer;
+  }
+
+  .vis-foreground .vis-group:nth-child(odd) {
+    border-bottom: 1px solid transparent;
+  }
+}

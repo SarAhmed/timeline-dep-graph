@@ -15,11 +15,15 @@
  */
 
 import { Status } from './Status';
-import { Task } from './Task';
+import { Task, getSuperTask } from './Task';
 
 // ItemData represents the vis-item data.
 export interface ItemData {
   readonly 'id': string;
+  // An ID including all parents of the item.
+  // e.g. 'task1::subtask2::action1' represents action1 under subtask1 under
+  // task 1.
+  readonly fullId: string;
   name: string;
   status: Status;
   content: string;
@@ -28,6 +32,7 @@ export interface ItemData {
   className: string;
   expandable: boolean;
   group: string;
+  subgroup: string;
 }
 
 interface ItemSet {
@@ -36,16 +41,29 @@ interface ItemSet {
 
 /**
  * @param task The task to be mapped into a vis-item.
+ * @param allTasks The list of all tasks in the timeline.
  * @param isGrouped Whether the timeline's items are grouped by status or not.
  * @return The vis-item's data corresponding to the task fields.
  */
-export function maptoItem(task: Task, isGrouped: boolean): ItemData {
+export function maptoItem(
+  task: Task, allTasks: Task[], isGrouped: boolean): ItemData {
   let className = 'transeparent';
   if (task.subTasks.length > 0) {
     className += ' tdg-pointer';
   }
+
+  let parent = getSuperTask(allTasks, task.id);
+  let fullId = task.id;
+  let subgroup = '';
+  while (!!parent) {
+    fullId = `${parent.id}::${fullId}`;
+    subgroup = `${parent.id}::${subgroup}`;
+    parent = getSuperTask(allTasks, parent.id);
+  }
+
   return {
-    'id': task.id,
+    id: task.id,
+    fullId,
     name: task.name,
     status: task.status,
     start: task.startTime,
@@ -54,6 +72,7 @@ export function maptoItem(task: Task, isGrouped: boolean): ItemData {
     className,
     expandable: task.subTasks.length > 0,
     group: isGrouped ? task.status : 'unGrouped',
+    subgroup,
   };
 }
 

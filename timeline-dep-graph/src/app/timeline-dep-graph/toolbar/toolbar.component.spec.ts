@@ -139,13 +139,13 @@ function createMockTimeline(): Timeline {
     setWindow: jasmine.createSpy('setWindow'),
     itemSet: {
       items: {
-        'a': {
+        a: {
           data: {
             start: new Date('2020-10-10'),
             end: new Date('2020-10-11'),
           }
         },
-        'b': {
+        b: {
           data: {
             start: new Date('2020-10-11'),
             end: new Date('2020-10-12'),
