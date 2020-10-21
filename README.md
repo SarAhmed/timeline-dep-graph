@@ -2,7 +2,7 @@
 ![example_tdg](TDG-screenshot.png)
 
 TDG (i.e. timeline-dep-graph) is a visualization library to represent rollouts graphically. The tasks are represented as a rectangular bar on the timeline and spanning the time it elapsed to execute. The library supports visualizing subtasks within a parent task (i.e. rollout hierarchy) by encapsulating the subtasks within the parent task and visualizes the dependencies between tasks using directed arrows.
-The library dynamically detects the changes in the provided tasks array and according repaints only the affected tasks and/or dependencies (i.e. add/remove/update). 
+The library dynamically detects the changes in the provided tasks array and according repaints only the affected tasks and/or dependencies (i.e. add/remove/update).
 
 There is a set of supported features such as zooming in/out, navigating to the beginning/end of the rollout, grouping tasks based on status, fit the visible screen to include the whole rollout and focusing on a task by giving its id.
 
@@ -16,7 +16,7 @@ Then To install all dependencies and build the library, run `npm install` in the
 $ cd timeline-dep-graph/
 $ npm install
 ```
-Then run 
+Then run
 ```
 $ npm run build
 ```
@@ -70,6 +70,7 @@ export type TaskId = string;
  * associated styling in the `styles.scss` or in your global styling file.
  * For every new status add two classes:
  *
+ * ```
  * rect.tdg-(status value) {
  *  fill: (status color);
  * }
@@ -77,6 +78,7 @@ export type TaskId = string;
  * small.tdg-(status value) {
  *  color: (status color);
  * }
+ * ```
  *
  * For example, adding an `ACTION_REQUIRED = action_required` status.
  * Their styling could be:
@@ -88,6 +90,7 @@ export type TaskId = string;
  * small.tdg-action_required {
  *  color: orange;
  * }
+ * ```
  */
 enum Status {
   UNKNOWN,
