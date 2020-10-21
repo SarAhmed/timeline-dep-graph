@@ -149,7 +149,7 @@ export function equalsTaskArray(arr1: Task[], arr2: Task[]): boolean {
   arr1 = arr1.sort((a: Task, b: Task) => a.id.localeCompare(b.id));
   arr2 = arr2.sort((a: Task, b: Task) => a.id.localeCompare(b.id));
   for (const idx in arr1) {
-    if (!equalTaskFields(arr1[idx], arr2[idx])) {
+    if (!equalsTask(arr1[idx], arr2[idx])) {
       return false;
     }
   }
