@@ -20,6 +20,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Status } from './../../timeline-dep-graph/Status';
 import { Task, TaskId } from './../../timeline-dep-graph/Task';
 
+
+const MS_PER_MIN = 60 * 1000;
+
 @Component({
   selector: 'tdg-demo',
   templateUrl: './demo.component.html',
@@ -79,14 +82,15 @@ export class DemoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const now = new Date();
     const task0: Task = {
       id: '0',
       name: 'Task 0',
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T00:00:00.000Z'),
-      finishTime: new Date('2020-10-12T01:00:00.000Z'),
+      startTime: new Date(now.getTime() - 120 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 80 * MS_PER_MIN),
     };
     const task1: Task = {
       id: '1',
@@ -94,8 +98,8 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T01:00:00.000Z'),
-      finishTime: new Date('2020-10-12T02:30:00.000Z'),
+      startTime: new Date(now.getTime() - 76 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 30 * MS_PER_MIN),
     };
     const task2: Task = {
       id: '2',
@@ -103,8 +107,7 @@ export class DemoComponent implements OnInit {
       status: Status.RUNNING,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T02:40:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+      startTime: new Date(now.getTime() - 25 * MS_PER_MIN),
     };
     const task2A: Task = {
       id: '2A',
@@ -112,8 +115,8 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T02:40:00.000Z'),
-      finishTime: new Date('2020-10-12T03:20:00.000Z'),
+      startTime: new Date(now.getTime() - 25 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 5 * MS_PER_MIN),
     };
     const task2B: Task = {
       id: '2B',
@@ -121,8 +124,7 @@ export class DemoComponent implements OnInit {
       status: Status.RUNNING,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:20:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+      startTime: new Date(now.getTime() - 4 * MS_PER_MIN),
     };
     task2A.dependents = ['2B'];
     task2.subTasks = [task2A, task2B];
@@ -133,8 +135,8 @@ export class DemoComponent implements OnInit {
       status: Status.FAILED,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:00:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+      startTime: new Date(now.getTime() - 27 * MS_PER_MIN),
+      finishTime: now,
     };
     const task3A: Task = {
       id: '3A',
@@ -142,8 +144,8 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:00:00.000Z'),
-      finishTime: new Date('2020-10-12T03:10:00.000Z'),
+      startTime: new Date(now.getTime() - 27 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 15 * MS_PER_MIN),
     };
     const task3B: Task = {
       id: '3B',
@@ -151,8 +153,8 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:20:00.000Z'),
-      finishTime: new Date('2020-10-12T03:30:00.000Z'),
+      startTime: new Date(now.getTime() - 14 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 7 * MS_PER_MIN),
     };
     const task3C: Task = {
       id: '3C',
@@ -160,8 +162,8 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:20:00.000Z'),
-      finishTime: new Date('2020-10-12T03:40:00.000Z'),
+      startTime: new Date(now.getTime() - 14 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 8 * MS_PER_MIN),
     };
     const task3D: Task = {
       id: '3D',
@@ -169,8 +171,8 @@ export class DemoComponent implements OnInit {
       status: Status.FAILED,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T03:50:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+      startTime: new Date(now.getTime() - 5 * MS_PER_MIN),
+      finishTime: now
     };
     task3A.dependents = ['3B', '3C'];
     task3B.dependents = ['3D'];
@@ -184,8 +186,7 @@ export class DemoComponent implements OnInit {
       status: Status.RUNNING,
       dependents: [],
       subTasks: [],
-      startTime: new Date('2020-10-12T01:00:00.000Z'),
-      finishTime: new Date('2020-10-12T04:00:00.000Z'),
+      startTime: new Date(now.getTime() - 76 * MS_PER_MIN),
     };
     task0.dependents = ['1', '4'];
     task1.dependents = ['2', '3'];
