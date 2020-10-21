@@ -85,9 +85,11 @@ export class TimelineComponent implements AfterViewInit, OnChanges, OnDestroy {
    * The width of the timeline is in pixels or as a percentage.
    * When width is undefined or null,
    * the width of the timeline spans 100% of its parent's width.
+   * ```
    * width = 400; // Sets the timeline's width to 400px.
    * width = "400px"; // Sets the timeline's width to 400px.
    * width = "50%"; // Timeline spans 50% of its parent's width.
+   * ```
    */
   @Input() width?: number | string;
 
