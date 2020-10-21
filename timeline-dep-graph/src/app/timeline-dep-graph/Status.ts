@@ -26,6 +26,7 @@
  * associated styling in the `styles.scss` or in your global styling file.
  * For every new status add two classes:
  *
+ * ```
  * rect.tdg-(status value) {
  *  fill: (status color);
  * }
@@ -33,6 +34,7 @@
  * small.tdg-(status value) {
  *  color: (status color);
  * }
+ * ```
  *
  * For example, adding an `ACTION_REQUIRED = action_required` status.
  * Their styling could be:
@@ -44,6 +46,7 @@
  * small.tdg-action_required {
  *  color: orange;
  * }
+ * ```
  */
 export enum Status {
   FAILED = 'failed',
