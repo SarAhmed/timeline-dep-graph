@@ -73,9 +73,7 @@ export class HierarchyService implements OnDestroy {
     }
 
     const container = this.createContainer();
-    container.classList.add(`tdg-${task.status}`);
-    container.classList.add('tdg-hierarchy');
-    container.classList.add('tdg-pointer');
+    this.setContainerStatus(container, task);
     container.id = `tdg-expanded-${task.id}`;
 
     container.addEventListener('click', (event: Event) => {
@@ -121,24 +119,41 @@ export class HierarchyService implements OnDestroy {
   }
 
   updateHierarchyEl(task: Task): void {
-    this.removeHierarchyEl(task.id);
-    this.addHierarchyEl(task);
+    const hierarchyEl = this.hierarchyMap.get(task.id);
+    if (!hierarchyEl) {
+      return;
+    }
+    this.updateHierarchyElPosition(hierarchyEl);
+    this.setContainerStatus(hierarchyEl.container, task);
+    hierarchyEl.taskName.innerHTML = task.name;
   }
 
   isExpanded(taskId: TaskId): boolean {
     return this.hierarchyMap.has(taskId);
   }
 
+  private setContainerStatus(container: SVGRectElement, task: Task): void {
+    container.setAttribute('class', '');
+    container.classList.add(`tdg-${task.status}`);
+    container.classList.add('tdg-hierarchy');
+    container.classList.add('tdg-pointer');
+  }
+
   private updateHierarchyPositions(): void {
     for (const hierarchy of this.hierarchyMap.values()) {
-      const boundingBox =
-        this.positionService.getTaskPositionById(hierarchy.taskId);
-      if (!boundingBox) {
-        continue;
-      }
-      setHierarchyCoordinates(
-        hierarchy.container, hierarchy.taskName, boundingBox);
+      this.updateHierarchyElPosition(hierarchy);
     }
+  }
+
+  private updateHierarchyElPosition(hierarchyEl: HierarchyElement): void {
+    const boundingBox =
+      this.positionService.getTaskPositionById(hierarchyEl.taskId);
+    if (!boundingBox) {
+      return;
+    }
+    setHierarchyCoordinates(
+      hierarchyEl.container, hierarchyEl.taskName, boundingBox
+    );
   }
 
   private renderSVG(): void {
