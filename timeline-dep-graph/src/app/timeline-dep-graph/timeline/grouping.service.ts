@@ -97,7 +97,7 @@ export class GroupingService {
   }
 
   addGroups(tasks: Task[]): void {
-    // This flag is used to avoid unnecessary unnecessary repainting of groups.
+    // This flag is used to avoid unnecessary repainting of groups.
     let newGroup = false;
 
     for (const task of tasks) {
