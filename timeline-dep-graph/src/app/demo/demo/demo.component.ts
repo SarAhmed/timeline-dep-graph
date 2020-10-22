@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 
 import { Status } from './../../timeline-dep-graph/Status';
 import { Task, TaskId } from './../../timeline-dep-graph/Task';
+
 
 
 const MS_PER_MIN = 60 * 1000;
@@ -72,9 +72,10 @@ export class DemoComponent implements OnInit {
   private parseInputTasks(tasks: any[]): Task[] {
     for (const task of tasks) {
       task.startTime =
-        task.startTime === 'undefined' ? undefined : new Date(task.startTime);
-      task.finishTime =
-        task.finishTime === 'undefined' ? undefined : new Date(task.finishTime);
+        task.startTime === !task.finishTime || task.finishTime === 'undefined'
+          ? undefined : new Date(task.startTime);
+      task.finishTime = !task.finishTime || task.finishTime === 'undefined' ?
+        undefined : new Date(task.finishTime);
 
       task.subTasks = this.parseInputTasks(task.subTasks);
     }
@@ -99,7 +100,7 @@ export class DemoComponent implements OnInit {
       dependents: [],
       subTasks: [],
       startTime: new Date(now.getTime() - 76 * MS_PER_MIN),
-      finishTime: new Date(now.getTime() - 30 * MS_PER_MIN),
+      finishTime: new Date(now.getTime() - 40 * MS_PER_MIN),
     };
     const task2: Task = {
       id: '2',
@@ -107,7 +108,7 @@ export class DemoComponent implements OnInit {
       status: Status.RUNNING,
       dependents: [],
       subTasks: [],
-      startTime: new Date(now.getTime() - 25 * MS_PER_MIN),
+      startTime: new Date(now.getTime() - 35 * MS_PER_MIN),
     };
     const task2A: Task = {
       id: '2A',
@@ -115,7 +116,7 @@ export class DemoComponent implements OnInit {
       status: Status.SUCCESS,
       dependents: [],
       subTasks: [],
-      startTime: new Date(now.getTime() - 25 * MS_PER_MIN),
+      startTime: new Date(now.getTime() - 35 * MS_PER_MIN),
       finishTime: new Date(now.getTime() - 5 * MS_PER_MIN),
     };
     const task2B: Task = {

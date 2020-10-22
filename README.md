@@ -11,7 +11,7 @@ To build the library from source, clone the project from github
 ```
 $ git clone https://github.com/SarAhmed/timeline-dep-graph.git
 ```
-Then To install all dependencies and build the library, run `npm install` in the root of the project.
+Then to install all dependencies and build the library, run `npm install` in the root of the project.
 ```
 $ cd timeline-dep-graph/
 $ npm install
@@ -93,11 +93,11 @@ export type TaskId = string;
  * ```
  */
 enum Status {
-  UNKNOWN,
-  SUCCESS,
-  RUNNING,
-  FAILED,
-  BLOCKED,
+  FAILED = 'failed',
+  BLOCKED = 'blocked',
+  UNKNOWN = 'unknown',
+  RUNNING = 'running',
+  SUCCESS = 'success',
 }
 
 interface Task {
