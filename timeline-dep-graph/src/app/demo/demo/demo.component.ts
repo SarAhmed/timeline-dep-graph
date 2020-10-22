@@ -72,9 +72,10 @@ export class DemoComponent implements OnInit {
   private parseInputTasks(tasks: any[]): Task[] {
     for (const task of tasks) {
       task.startTime =
-        task.startTime === 'undefined' ? undefined : new Date(task.startTime);
-      task.finishTime =
-        task.finishTime === 'undefined' ? undefined : new Date(task.finishTime);
+        task.startTime === !task.finishTime || task.finishTime === 'undefined'
+          ? undefined : new Date(task.startTime);
+      task.finishTime = !task.finishTime || task.finishTime === 'undefined' ?
+        undefined : new Date(task.finishTime);
 
       task.subTasks = this.parseInputTasks(task.subTasks);
     }
